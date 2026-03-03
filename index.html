@@ -203,11 +203,12 @@
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      padding: 20px 32px;
+      padding: 24px 32px;
       text-decoration: none;
       border-right: 1px solid rgba(255, 255, 255, 0.05);
       transition: background 0.2s;
       min-width: 120px;
+      overflow: visible;
     }
 
     .hero-nav-strip a:last-child {
@@ -230,10 +231,12 @@
 
     .hero-nav-strip .strip-sub {
       font-size: 0.7rem;
-      color: #475569;
+      color: #94a3b8;
+      margin-top: 2px;
     }
 
     /* ── フッター（シンプル化） ── */
+
     .site-footer-compact {
       margin-top: 80px;
       padding: 32px 24px;
@@ -350,7 +353,7 @@
       <p class="hero-sub">anime.jsが持つ強力なアニメーション機能を<br>インタラクティブなデモと解説で体験しよう</p>
       <div class="hero-cta-group">
         <a href="#demo-section" class="hero-btn-primary"
-          onclick="document.querySelector('.hdr').scrollIntoView({behavior:'smooth'});return false;">
+          onclick="event.preventDefault();document.querySelector('main.main').scrollIntoView({behavior:'smooth'});">
           ▶ デモを見る
         </a>
         <a href="guides/timing-easing.html" class="hero-btn-secondary">
