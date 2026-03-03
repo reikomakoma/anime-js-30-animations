@@ -236,7 +236,7 @@ window.runDemo = function (n) {
   played.add(n); playedReal.add(n);
 };
 
-// ══════════════ HERO STARS ─ Fantasia Edition ══════════════
+// ══════════════ HERO STARS / SKY ─ Dual Mode ══════════════
 function initStars() {
   const c = document.getElementById('starCanvas');
   if (!c) { setTimeout(initStars, 100); return; }
@@ -252,7 +252,9 @@ function initStars() {
   resize();
   window.addEventListener('resize', resize);
 
-  // ── 多層星野 ──
+  const isLight = () => document.body.getAttribute('data-theme') === 'light';
+
+  // ══ DARK MODE: 夜空 ══
   const makeStar = (layer) => {
     const cfgs = [
       { rMin: 0.15, rMax: 0.6, oMax: 0.30, speed: 0.001, colors: ['255,255,255', '200,220,255', '255,240,220'] },
@@ -262,23 +264,9 @@ function initStars() {
     const cfg = cfgs[layer];
     const col = cfg.colors[Math.floor(Math.random() * cfg.colors.length)];
     const o = Math.random() * cfg.oMax * 0.55 + 0.05;
-    return {
-      x: Math.random(), y: Math.random(),
-      r: Math.random() * (cfg.rMax - cfg.rMin) + cfg.rMin,
-      baseO: o, col, layer,
-      phase: Math.random() * Math.PI * 2,
-      freq: Math.random() * 0.025 + 0.004,
-      // 十字スパークル対象 (大きい星の一部)
-      sparkle: layer === 2 && Math.random() < 0.45,
-    };
+    return { x: Math.random(), y: Math.random(), r: Math.random() * (cfg.rMax - cfg.rMin) + cfg.rMin, baseO: o, col, layer, phase: Math.random() * Math.PI * 2, freq: Math.random() * 0.025 + 0.004, sparkle: layer === 2 && Math.random() < 0.45 };
   };
-  const stars = [
-    ...Array.from({ length: 150 }, () => makeStar(0)),
-    ...Array.from({ length: 110 }, () => makeStar(1)),
-    ...Array.from({ length: 65 }, () => makeStar(2)),
-  ];
-
-  // ── カラフル星雲 (増量・鮮やかに) ──
+  const stars = [...Array.from({ length: 150 }, () => makeStar(0)), ...Array.from({ length: 110 }, () => makeStar(1)), ...Array.from({ length: 65 }, () => makeStar(2))];
   const nebulae = [
     { x: 0.12, y: 0.20, rx: 0.32, ry: 0.22, color: '100,0,200', o: 0.13 },
     { x: 0.80, y: 0.55, rx: 0.26, ry: 0.20, color: '0,100,220', o: 0.11 },
@@ -286,250 +274,189 @@ function initStars() {
     { x: 0.88, y: 0.18, rx: 0.22, ry: 0.18, color: '180,40,100', o: 0.10 },
     { x: 0.28, y: 0.68, rx: 0.25, ry: 0.18, color: '30,80,220', o: 0.10 },
     { x: 0.60, y: 0.30, rx: 0.20, ry: 0.16, color: '200,80,255', o: 0.08 },
-    { x: 0.05, y: 0.70, rx: 0.18, ry: 0.14, color: '80,200,255', o: 0.08 },
   ];
-
-  // ── オーロラ (カーテン状の光) ──
-  const auroras = Array.from({ length: 4 }, (_, i) => ({
-    hue: [260, 180, 320, 200][i],
-    baseY: [0.15, 0.30, 0.55, 0.70][i],
-    amp: Math.random() * 0.06 + 0.04,
-    freq: Math.random() * 0.0008 + 0.0003,
-    phase: Math.random() * Math.PI * 2,
-    speed: Math.random() * 0.003 + 0.001,
-    width: Math.random() * 0.06 + 0.02,
-    alpha: Math.random() * 0.04 + 0.02,
-  }));
-
-  // ── 宇宙塵 (微細パーティクル) ──
-  const dust = Array.from({ length: 60 }, () => ({
-    x: Math.random(), y: Math.random(),
-    vx: (Math.random() - 0.5) * 0.0002,
-    vy: (Math.random() - 0.5) * 0.0001,
-    r: Math.random() * 0.8 + 0.2,
-    o: Math.random() * 0.15 + 0.03,
-    col: ['180,160,255', '160,220,255', '255,200,180'][Math.floor(Math.random() * 3)],
-  }));
-
-  // ── 流れ星 (複数同時対応) ──
+  const auroras = Array.from({ length: 4 }, (_, i) => ({ hue: [260, 180, 320, 200][i], baseY: [0.15, 0.30, 0.55, 0.70][i], amp: Math.random() * 0.06 + 0.04, freq: Math.random() * 0.0008 + 0.0003, phase: Math.random() * Math.PI * 2, speed: Math.random() * 0.003 + 0.001, width: Math.random() * 0.06 + 0.02, alpha: Math.random() * 0.04 + 0.02 }));
+  const dust = Array.from({ length: 60 }, () => ({ x: Math.random(), y: Math.random(), vx: (Math.random() - 0.5) * 0.0002, vy: (Math.random() - 0.5) * 0.0001, r: Math.random() * 0.8 + 0.2, o: Math.random() * 0.15 + 0.03, col: ['180,160,255', '160,220,255', '255,200,180'][Math.floor(Math.random() * 3)] }));
   const shootingStars = [];
   let shootTimer = 0;
   const SHOOT_INTERVAL = 140;
 
   function spawnShooting() {
-    const colors = [
-      ['255,255,255', '180,220,255'],
-      ['255,220,180', '255,160,100'],
-      ['180,255,220', '100,255,200'],
-      ['220,180,255', '180,100,255'],
-    ];
+    const colors = [['255,255,255', '180,220,255'], ['255,220,180', '255,160,100'], ['180,255,220', '100,255,200'], ['220,180,255', '180,100,255']];
     const [headCol, tailCol] = colors[Math.floor(Math.random() * colors.length)];
     const angle = (Math.random() * 35 + 10) * Math.PI / 180;
     const len = Math.random() * 220 + 150;
     const speed = Math.random() * 7 + 6;
-    shootingStars.push({
-      x: Math.random() * 0.65 + 0.05,
-      y: Math.random() * 0.45,
-      angle, len, speed,
-      life: 0, maxLife: len / speed + 25,
-      headCol, tailCol,
-      // パーティクル尾
-      particles: [],
+    shootingStars.push({ x: Math.random() * 0.65 + 0.05, y: Math.random() * 0.45, angle, len, speed, life: 0, maxLife: len / speed + 25, headCol, tailCol, particles: [] });
+  }
+
+  function drawCross(x, y, size, alpha, col) {
+    [0, Math.PI / 2].forEach(angle => {
+      const grad = ctx.createLinearGradient(x - Math.cos(angle) * size, y - Math.sin(angle) * size, x + Math.cos(angle) * size, y + Math.sin(angle) * size);
+      grad.addColorStop(0, `rgba(${col},0)`); grad.addColorStop(0.5, `rgba(${col},${(alpha * 0.6).toFixed(3)})`); grad.addColorStop(1, `rgba(${col},0)`);
+      ctx.save(); ctx.globalAlpha = alpha * 0.7;
+      ctx.beginPath(); ctx.moveTo(x - Math.cos(angle) * size, y - Math.sin(angle) * size); ctx.lineTo(x + Math.cos(angle) * size, y + Math.sin(angle) * size);
+      ctx.strokeStyle = grad; ctx.lineWidth = 0.8; ctx.stroke(); ctx.restore();
     });
   }
 
-  let frame = 0;
-
-  // ── 描画: オーロラ ──
-  function drawAuroras() {
+  function drawDarkFrame() {
     auroras.forEach(a => {
       a.phase += a.speed;
-      const W = c.width;
-      const H = c.height;
-      const bandH = a.width * H;
-      for (let x = 0; x <= W; x += 3) {
-        const waveY = (a.baseY + Math.sin(x * a.freq + a.phase) * a.amp) * H;
+      for (let x = 0; x <= c.width; x += 3) {
+        const waveY = (a.baseY + Math.sin(x * a.freq + a.phase) * a.amp) * c.height;
         const pulse = (Math.sin(frame * 0.012 + a.phase) * 0.5 + 0.5);
         const alpha = a.alpha * pulse * (0.6 + 0.4 * Math.sin(x * 0.002 + a.phase));
+        const bandH = a.width * c.height;
         const grad = ctx.createLinearGradient(x, waveY - bandH, x, waveY + bandH);
-        grad.addColorStop(0, `hsla(${a.hue},100%,70%,0)`);
-        grad.addColorStop(0.35, `hsla(${a.hue},100%,70%,${(alpha * 0.8).toFixed(3)})`);
-        grad.addColorStop(0.5, `hsla(${a.hue + 20},100%,80%,${alpha.toFixed(3)})`);
-        grad.addColorStop(0.7, `hsla(${a.hue},100%,60%,${(alpha * 0.6).toFixed(3)})`);
-        grad.addColorStop(1, `hsla(${a.hue},100%,70%,0)`);
-        ctx.fillStyle = grad;
-        ctx.fillRect(x, waveY - bandH, 4, bandH * 2);
+        grad.addColorStop(0, `hsla(${a.hue},100%,70%,0)`); grad.addColorStop(0.5, `hsla(${a.hue + 20},100%,80%,${alpha.toFixed(3)})`); grad.addColorStop(1, `hsla(${a.hue},100%,70%,0)`);
+        ctx.fillStyle = grad; ctx.fillRect(x, waveY - bandH, 4, bandH * 2);
       }
     });
-  }
-
-  // ── 描画: 星雲 ──
-  function drawNebulae() {
     nebulae.forEach(n => {
       const pulse = 0.85 + 0.15 * Math.sin(frame * 0.008 + n.x * 10);
-      const grd = ctx.createRadialGradient(
-        n.x * c.width, n.y * c.height, 0,
-        n.x * c.width, n.y * c.height, n.rx * c.width * pulse
-      );
-      grd.addColorStop(0, `rgba(${n.color},${n.o})`);
-      grd.addColorStop(0.3, `rgba(${n.color},${(n.o * 0.6).toFixed(3)})`);
-      grd.addColorStop(1, `rgba(${n.color},0)`);
-      ctx.save();
-      ctx.scale(1, n.ry / n.rx);
-      ctx.beginPath();
-      ctx.arc(n.x * c.width, (n.y * c.height) * (n.rx / n.ry), n.rx * c.width * pulse, 0, Math.PI * 2);
-      ctx.fillStyle = grd;
-      ctx.fill();
-      ctx.restore();
+      const grd = ctx.createRadialGradient(n.x * c.width, n.y * c.height, 0, n.x * c.width, n.y * c.height, n.rx * c.width * pulse);
+      grd.addColorStop(0, `rgba(${n.color},${n.o})`); grd.addColorStop(1, `rgba(${n.color},0)`);
+      ctx.save(); ctx.scale(1, n.ry / n.rx); ctx.beginPath(); ctx.arc(n.x * c.width, n.y * c.height * n.rx / n.ry, n.rx * c.width * pulse, 0, Math.PI * 2); ctx.fillStyle = grd; ctx.fill(); ctx.restore();
     });
-  }
-
-  // ── 描画: 宇宙塵 ──
-  function drawDust() {
-    dust.forEach(d => {
-      d.x += d.vx; d.y += d.vy;
-      if (d.x < 0) d.x = 1; if (d.x > 1) d.x = 0;
-      if (d.y < 0) d.y = 1; if (d.y > 1) d.y = 0;
-      ctx.beginPath();
-      ctx.arc(d.x * c.width, d.y * c.height, d.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${d.col},${d.o})`;
-      ctx.fill();
-    });
-  }
-
-  // ── 描画: 星 (十字スパークル付き) ──
-  function drawCross(x, y, size, alpha, col) {
-    const arms = [0, Math.PI / 2];
-    ctx.save();
-    ctx.globalAlpha = alpha * 0.7;
-    arms.forEach(angle => {
-      const grad = ctx.createLinearGradient(
-        x - Math.cos(angle) * size, y - Math.sin(angle) * size,
-        x + Math.cos(angle) * size, y + Math.sin(angle) * size
-      );
-      grad.addColorStop(0, `rgba(${col},0)`);
-      grad.addColorStop(0.5, `rgba(${col},${(alpha * 0.6).toFixed(3)})`);
-      grad.addColorStop(1, `rgba(${col},0)`);
-      ctx.beginPath();
-      ctx.moveTo(x - Math.cos(angle) * size, y - Math.sin(angle) * size);
-      ctx.lineTo(x + Math.cos(angle) * size, y + Math.sin(angle) * size);
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = 0.8;
-      ctx.stroke();
-    });
-    ctx.restore();
-  }
-
-  function drawStars() {
+    dust.forEach(d => { d.x += d.vx; d.y += d.vy; if (d.x < 0) d.x = 1; if (d.x > 1) d.x = 0; if (d.y < 0) d.y = 1; if (d.y > 1) d.y = 0; ctx.beginPath(); ctx.arc(d.x * c.width, d.y * c.height, d.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(${d.col},${d.o})`; ctx.fill(); });
     stars.forEach(s => {
       s.phase += s.freq;
       const flicker = Math.sin(s.phase) * 0.5 + 0.5;
       const alpha = Math.max(0.02, s.baseO * (0.35 + 0.65 * flicker));
-
-      // グロー
-      if (s.r > 1.0) {
-        const glowR = s.r * (s.sparkle ? 8 : 5);
-        const glow = ctx.createRadialGradient(
-          s.x * c.width, s.y * c.height, 0,
-          s.x * c.width, s.y * c.height, glowR
-        );
-        const glowA = (alpha * 0.45).toFixed(3);
-        glow.addColorStop(0, `rgba(${s.col},${glowA})`);
-        glow.addColorStop(1, `rgba(${s.col},0)`);
-        ctx.beginPath();
-        ctx.arc(s.x * c.width, s.y * c.height, glowR, 0, Math.PI * 2);
-        ctx.fillStyle = glow;
-        ctx.fill();
-      }
-
-      // 十字スパークル
-      if (s.sparkle) {
-        const sparkSize = s.r * (6 + 4 * flicker);
-        drawCross(s.x * c.width, s.y * c.height, sparkSize, alpha, s.col);
-      }
-
-      // 星本体
-      ctx.beginPath();
-      ctx.arc(s.x * c.width, s.y * c.height, s.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${s.col},${alpha.toFixed(3)})`;
-      ctx.fill();
+      if (s.r > 1.0) { const glowR = s.r * (s.sparkle ? 8 : 5); const glow = ctx.createRadialGradient(s.x * c.width, s.y * c.height, 0, s.x * c.width, s.y * c.height, glowR); glow.addColorStop(0, `rgba(${s.col},${(alpha * 0.45).toFixed(3)})`); glow.addColorStop(1, `rgba(${s.col},0)`); ctx.beginPath(); ctx.arc(s.x * c.width, s.y * c.height, glowR, 0, Math.PI * 2); ctx.fillStyle = glow; ctx.fill(); }
+      if (s.sparkle) drawCross(s.x * c.width, s.y * c.height, s.r * (6 + 4 * flicker), alpha, s.col);
+      ctx.beginPath(); ctx.arc(s.x * c.width, s.y * c.height, s.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(${s.col},${alpha.toFixed(3)})`; ctx.fill();
     });
-  }
-
-  // ── 描画: 流れ星 (カラーグラデーション + パーティクル尾) ──
-  function drawShootingStars() {
+    shootTimer++;
+    if (shootTimer >= SHOOT_INTERVAL && shootingStars.length < 3) { shootTimer = 0; spawnShooting(); if (Math.random() < 0.25) setTimeout(spawnShooting, 400); }
     for (let i = shootingStars.length - 1; i >= 0; i--) {
-      const s = shootingStars[i];
-      s.life++;
-      const progress = s.life / s.maxLife;
-      if (progress >= 1) { shootingStars.splice(i, 1); continue; }
-
+      const s = shootingStars[i]; s.life++;
+      const progress = s.life / s.maxLife; if (progress >= 1) { shootingStars.splice(i, 1); continue; }
       const tailProgress = Math.min(1, progress * 2.0);
       const px = (s.x + Math.cos(s.angle) * (s.speed * s.life / c.width)) * c.width;
       const py = (s.y + Math.sin(s.angle) * (s.speed * s.life / c.height)) * c.height;
-      const tx = px - Math.cos(s.angle) * s.len * tailProgress;
-      const ty = py - Math.sin(s.angle) * s.len * tailProgress;
+      const tx = px - Math.cos(s.angle) * s.len * tailProgress; const ty = py - Math.sin(s.angle) * s.len * tailProgress;
       const alpha = Math.sin(progress * Math.PI);
-
-      // メイントレイル
       const grad = ctx.createLinearGradient(tx, ty, px, py);
-      grad.addColorStop(0, `rgba(${s.tailCol},0)`);
-      grad.addColorStop(0.5, `rgba(${s.tailCol},${(alpha * 0.5).toFixed(2)})`);
-      grad.addColorStop(0.85, `rgba(${s.headCol},${(alpha * 0.8).toFixed(2)})`);
-      grad.addColorStop(1, `rgba(255,255,255,${alpha.toFixed(2)})`);
-      ctx.save();
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = `rgba(${s.headCol},0.9)`;
-      ctx.beginPath();
-      ctx.moveTo(tx, ty);
-      ctx.lineTo(px, py);
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.restore();
-
-      // パーティクル尾 (散乱する光の粒)
-      if (s.life % 3 === 0 && alpha > 0.3) {
-        s.particles.push({
-          x: px, y: py,
-          vx: (Math.random() - 0.5) * 1.5,
-          vy: (Math.random() - 0.5) * 1.5,
-          life: 0, maxLife: 18 + Math.random() * 12,
-          r: Math.random() * 1.5 + 0.5,
-          col: s.headCol,
-        });
-      }
-      s.particles = s.particles.filter(p => {
-        p.life++;
-        p.x += p.vx; p.y += p.vy;
-        const pa = (1 - p.life / p.maxLife) * alpha * 0.7;
-        if (pa <= 0) return false;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${p.col},${pa.toFixed(3)})`;
-        ctx.fill();
-        return p.life < p.maxLife;
-      });
+      grad.addColorStop(0, `rgba(${s.tailCol},0)`); grad.addColorStop(0.85, `rgba(${s.headCol},${(alpha * 0.8).toFixed(2)})`); grad.addColorStop(1, `rgba(255,255,255,${alpha.toFixed(2)})`);
+      ctx.save(); ctx.shadowBlur = 12; ctx.shadowColor = `rgba(${s.headCol},0.9)`; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(px, py); ctx.strokeStyle = grad; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+      if (s.life % 3 === 0 && alpha > 0.3) s.particles.push({ x: px, y: py, vx: (Math.random() - 0.5) * 1.5, vy: (Math.random() - 0.5) * 1.5, life: 0, maxLife: 18 + Math.random() * 12, r: Math.random() * 1.5 + 0.5, col: s.headCol });
+      s.particles = s.particles.filter(p => { p.life++; p.x += p.vx; p.y += p.vy; const pa = (1 - p.life / p.maxLife) * alpha * 0.7; if (pa <= 0) return false; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(${p.col},${pa.toFixed(3)})`; ctx.fill(); return p.life < p.maxLife; });
     }
   }
 
+  // ══ LIGHT MODE: 晴れ空 ══
+  const clouds = Array.from({ length: 9 }, (_, i) => ({
+    x: Math.random(),
+    y: Math.random() * 0.65,
+    rx: Math.random() * 0.12 + 0.06,
+    ry: Math.random() * 0.055 + 0.025,
+    speed: Math.random() * 0.00012 + 0.00004,
+    alpha: Math.random() * 0.45 + 0.25,
+    puffs: Array.from({ length: Math.floor(Math.random() * 4) + 3 }, () => ({ ox: (Math.random() - 0.5) * 0.8, oy: (Math.random() - 0.5) * 0.5, rs: Math.random() * 0.5 + 0.6 })),
+  }));
+  const motes = Array.from({ length: 55 }, () => ({
+    x: Math.random(), y: Math.random(),
+    vx: (Math.random() - 0.5) * 0.00015,
+    vy: -Math.random() * 0.00018 - 0.00005,
+    r: Math.random() * 2.5 + 0.6,
+    alpha: Math.random() * 0.35 + 0.08,
+    phase: Math.random() * Math.PI * 2,
+    freq: Math.random() * 0.012 + 0.004,
+  }));
+  const birds = Array.from({ length: 7 }, () => ({
+    x: Math.random(),
+    y: Math.random() * 0.55 + 0.05,
+    speed: Math.random() * 0.0006 + 0.0003,
+    size: Math.random() * 5 + 4,
+    flapPhase: Math.random() * Math.PI * 2,
+    flapSpeed: Math.random() * 0.08 + 0.05,
+  }));
+
+  function drawLightFrame() {
+    // 空グラデーション
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, c.height);
+    skyGrad.addColorStop(0, 'rgba(135,206,250,0.55)');
+    skyGrad.addColorStop(0.5, 'rgba(176,224,240,0.25)');
+    skyGrad.addColorStop(1, 'rgba(220,240,255,0.05)');
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, c.width, c.height);
+
+    // 雲
+    clouds.forEach(cl => {
+      cl.x += cl.speed;
+      if (cl.x > 1.2) cl.x = -0.15;
+      cl.puffs.forEach(p => {
+        const px = (cl.x + p.ox * cl.rx) * c.width;
+        const py = (cl.y + p.oy * cl.ry) * c.height;
+        const pr = cl.rx * c.width * p.rs * 0.55;
+        const grd = ctx.createRadialGradient(px, py, 0, px, py, pr);
+        grd.addColorStop(0, `rgba(255,255,255,${cl.alpha})`);
+        grd.addColorStop(0.6, `rgba(240,248,255,${(cl.alpha * 0.5).toFixed(2)})`);
+        grd.addColorStop(1, `rgba(255,255,255,0)`);
+        ctx.beginPath();
+        ctx.ellipse(px, py, pr, pr * 0.62, 0, 0, Math.PI * 2);
+        ctx.fillStyle = grd;
+        ctx.fill();
+      });
+    });
+
+    // 光の粒（ほこり・コナユキ感）
+    motes.forEach(m => {
+      m.x += m.vx; m.y += m.vy;
+      m.phase += m.freq;
+      if (m.y < -0.02) m.y = 1.02;
+      if (m.x < 0) m.x = 1; if (m.x > 1) m.x = 0;
+      const flicker = Math.sin(m.phase) * 0.4 + 0.6;
+      const a = m.alpha * flicker;
+      const grd = ctx.createRadialGradient(m.x * c.width, m.y * c.height, 0, m.x * c.width, m.y * c.height, m.r * 2.5);
+      grd.addColorStop(0, `rgba(255,255,255,${a.toFixed(2)})`);
+      grd.addColorStop(1, `rgba(200,230,255,0)`);
+      ctx.beginPath();
+      ctx.arc(m.x * c.width, m.y * c.height, m.r * 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+    });
+
+    // 鳥（V字シルエット）
+    birds.forEach(b => {
+      b.x += b.speed;
+      b.flapPhase += b.flapSpeed;
+      if (b.x > 1.1) b.x = -0.05;
+      const bx = b.x * c.width;
+      const by = b.y * c.height;
+      const flap = Math.sin(b.flapPhase) * b.size * 0.45;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(80,120,160,0.45)';
+      ctx.lineWidth = 1.2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(bx - b.size, by - flap);
+      ctx.quadraticCurveTo(bx, by + flap * 0.5, bx + b.size, by - flap);
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    // 太陽の光芒（右上）
+    const sunX = c.width * 0.92;
+    const sunY = c.height * 0.08;
+    const sunGlow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, c.width * 0.28);
+    sunGlow.addColorStop(0, `rgba(255,240,180,${0.18 + 0.06 * Math.sin(frame * 0.015)})`);
+    sunGlow.addColorStop(0.4, `rgba(255,220,120,0.06)`);
+    sunGlow.addColorStop(1, 'rgba(255,200,80,0)');
+    ctx.fillStyle = sunGlow;
+    ctx.fillRect(0, 0, c.width, c.height);
+  }
+
+  let frame = 0;
   function tick() {
     ctx.clearRect(0, 0, c.width, c.height);
-
-    drawAuroras();
-    drawNebulae();
-    drawDust();
-    drawStars();
-
-    shootTimer++;
-    if (shootTimer >= SHOOT_INTERVAL && shootingStars.length < 3) {
-      shootTimer = 0;
-      spawnShooting();
-      // たまに2本同時に現れる
-      if (Math.random() < 0.25) setTimeout(spawnShooting, 400);
+    if (isLight()) {
+      drawLightFrame();
+    } else {
+      drawDarkFrame();
     }
-    drawShootingStars();
-
     frame++;
     requestAnimationFrame(tick);
   }
@@ -539,6 +466,7 @@ function initStars() {
 }
 
 initStars();
+
 
 // ══════════════ HERO ANIMATIONS ══════════════
 function initHeroAnimations() {
