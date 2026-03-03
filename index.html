@@ -138,6 +138,16 @@
       padding-top: calc(52px + var(--hh));
     }
 
+    /* グローバルナビ分だけデモヘッダーを下にずらす */
+    .hdr {
+      top: 52px !important;
+    }
+
+    /* スティッキーナビもグローバルナビ分下にずらす */
+    .nav-container-wrapper {
+      top: calc(52px + var(--hh)) !important;
+    }
+
     /* ── ヒーローCTAボタン ── */
     .hero-cta-group {
       display: flex;
