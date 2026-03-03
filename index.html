@@ -30,11 +30,317 @@
     "author": { "@type": "Person", "name": "rei" }
   }
   </script>
+  <style>
+    /* ── グローバルナビゲーション ── */
+    .global-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 52px;
+      background: rgba(9, 9, 15, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 300;
+      gap: 16px;
+    }
+
+    .gn-logo {
+      font-size: 0.88rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #7c3aed, #06b6d4);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .gn-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .gn-links a {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+
+    .gn-links a:hover {
+      color: #f1f5f9;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .gn-links a.active {
+      color: #f1f5f9;
+    }
+
+    .gn-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .gn-contact {
+      font-size: 0.78rem;
+      color: #64748b;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 7px;
+      transition: color 0.2s;
+    }
+
+    .gn-contact:hover {
+      color: #94a3b8;
+    }
+
+    .gn-about {
+      font-size: 0.78rem;
+      color: #64748b;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 7px;
+      transition: color 0.2s;
+    }
+
+    .gn-about:hover {
+      color: #94a3b8;
+    }
+
+    @media (max-width: 640px) {
+      .gn-links a {
+        padding: 5px 8px;
+        font-size: 0.75rem;
+      }
+
+      .gn-contact,
+      .gn-about {
+        display: none;
+      }
+    }
+
+    /* body padding調整（global-nav 52px + hdr 64px = 116px） */
+    body {
+      padding-top: calc(52px + var(--hh));
+    }
+
+    /* ── ヒーローCTAボタン ── */
+    .hero-cta-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .hero-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 26px;
+      background: linear-gradient(135deg, #7c3aed, #06b6d4);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
+    }
+
+    .hero-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(124, 58, 237, 0.45);
+    }
+
+    .hero-btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 26px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #cbd5e1;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 12px;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .hero-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    /* ── コンテンツ導線（ヒーロー直下） ── */
+    .hero-nav-strip {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      background: rgba(255, 255, 255, 0.025);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      flex-wrap: wrap;
+    }
+
+    .hero-nav-strip a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 20px 32px;
+      text-decoration: none;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.2s;
+      min-width: 120px;
+    }
+
+    .hero-nav-strip a:last-child {
+      border-right: none;
+    }
+
+    .hero-nav-strip a:hover {
+      background: rgba(124, 58, 237, 0.06);
+    }
+
+    .hero-nav-strip .strip-icon {
+      font-size: 1.2rem;
+    }
+
+    .hero-nav-strip .strip-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+
+    .hero-nav-strip .strip-sub {
+      font-size: 0.7rem;
+      color: #475569;
+    }
+
+    /* ── フッター（シンプル化） ── */
+    .site-footer-compact {
+      margin-top: 80px;
+      padding: 32px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(9, 9, 15, 0.7);
+    }
+
+    .sfc-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .sfc-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .sfc-logo {
+      font-size: 0.88rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #7c3aed, #06b6d4);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sfc-links {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .sfc-links a {
+      color: #475569;
+      text-decoration: none;
+      font-size: 0.78rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: color 0.2s;
+    }
+
+    .sfc-links a:hover {
+      color: #94a3b8;
+    }
+
+    .sfc-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .sfc-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .sfc-copy {
+      font-size: 0.72rem;
+      color: #334155;
+    }
+
+    .sfc-policy {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .sfc-policy a {
+      color: #334155;
+      text-decoration: none;
+      font-size: 0.72rem;
+      transition: color 0.2s;
+    }
+
+    .sfc-policy a:hover {
+      color: #64748b;
+    }
+  </style>
 </head>
 
 <body data-theme="dark">
 
-  <!-- HERO -->
+  <!-- ① グローバルナビゲーション（全ページ共通） -->
+  <nav class="global-nav" aria-label="グローバルナビゲーション">
+    <a href="index.html" class="gn-logo">anime.js Animations</a>
+    <div class="gn-links">
+      <a href="index.html" class="active">30 Demos</a>
+      <a href="guides/timing-easing.html">Guides</a>
+      <a href="blog/index.html">Blog</a>
+      <a href="faq.html">FAQ</a>
+      <a href="changelog.html">更新履歴</a>
+    </div>
+    <div class="gn-right">
+      <a href="about.html" class="gn-about">運営者情報</a>
+      <a href="contact.html" class="gn-contact">お問い合わせ</a>
+    </div>
+  </nav>
+
+  <!-- ② HERO -->
   <section class="hero" id="hero">
     <canvas id="starCanvas" class="star-canvas"></canvas>
     <div class="hero-glow"></div>
@@ -42,15 +348,48 @@
       <span class="hero-badge">+ anime.js 3.x</span>
       <h1 class="hero-h">アニメーション<br><span class="hero-hl">30種類完全解説</span></h1>
       <p class="hero-sub">anime.jsが持つ強力なアニメーション機能を<br>インタラクティブなデモと解説で体験しよう</p>
+      <div class="hero-cta-group">
+        <a href="#demo-section" class="hero-btn-primary"
+          onclick="document.querySelector('.hdr').scrollIntoView({behavior:'smooth'});return false;">
+          ▶ デモを見る
+        </a>
+        <a href="guides/timing-easing.html" class="hero-btn-secondary">
+          📖 Guides を読む
+        </a>
+      </div>
     </div>
     <div class="hero-scroll" onclick="document.querySelector('.hdr').scrollIntoView({behavior:'smooth'})">スクロール</div>
   </section>
+
+  <!-- ③ コンテンツ導線ストリップ（ヒーロー直下） -->
+  <div class="hero-nav-strip" id="demo-section">
+    <a href="guides/timing-easing.html">
+      <span class="strip-icon">⏱️</span>
+      <span class="strip-label">Guides</span>
+      <span class="strip-sub">5本の専門ガイド</span>
+    </a>
+    <a href="blog/index.html">
+      <span class="strip-icon">📚</span>
+      <span class="strip-label">Blog</span>
+      <span class="strip-sub">UIモーション記事8本</span>
+    </a>
+    <a href="faq.html">
+      <span class="strip-icon">❓</span>
+      <span class="strip-label">FAQ</span>
+      <span class="strip-sub">よくある質問</span>
+    </a>
+    <a href="changelog.html">
+      <span class="strip-icon">📝</span>
+      <span class="strip-label">更新履歴</span>
+      <span class="strip-sub">最新の変更情報</span>
+    </a>
+  </div>
 
   <!-- SECTION DIVIDER -->
   <div class="section-divider"></div>
 
   <div class="app-ui-container">
-    <!-- STICKY APP UI -->
+    <!-- ④ STICKY APP HEADER（デモ専用） -->
     <header class="hdr">
       <div class="hdr-logo">anime.js<span>30 Animations</span></div>
       <div class="search-wrap">
@@ -100,77 +439,36 @@
     <main class="main">
       <div class="grid" id="grid"></div>
     </main>
-    <!-- コンテンツ導線セクション -->
-    <section class="content-links-section" style="padding:48px 24px 0;max-width:960px;margin:0 auto;">
-      <h2
-        style="font-size:0.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mute,#64748b);text-align:center;margin-bottom:24px;">
-        さらに深く学ぶ</h2>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;">
-        <a href="guides/timing-easing.html"
-          style="display:block;padding:20px 22px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:14px;text-decoration:none;transition:border-color .25s,transform .25s;"
-          onmouseover="this.style.borderColor='rgba(99,102,241,0.5)';this.style.transform='translateY(-3px)'"
-          onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.transform='none'">
-          <div style="font-size:1.5rem;margin-bottom:8px;">⏱️</div>
-          <div style="font-size:.9rem;font-weight:700;color:#f1f5f9;margin-bottom:4px;">Guides</div>
-          <div style="font-size:.78rem;color:#64748b;">5本の専門ガイド記事</div>
-        </a>
-        <a href="blog/index.html"
-          style="display:block;padding:20px 22px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:14px;text-decoration:none;transition:border-color .25s,transform .25s;"
-          onmouseover="this.style.borderColor='rgba(99,102,241,0.5)';this.style.transform='translateY(-3px)'"
-          onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.transform='none'">
-          <div style="font-size:1.5rem;margin-bottom:8px;">📚</div>
-          <div style="font-size:.9rem;font-weight:700;color:#f1f5f9;margin-bottom:4px;">Blog</div>
-          <div style="font-size:.78rem;color:#64748b;">UIモーション・UX設計記事8本</div>
-        </a>
-        <a href="changelog.html"
-          style="display:block;padding:20px 22px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:14px;text-decoration:none;transition:border-color .25s,transform .25s;"
-          onmouseover="this.style.borderColor='rgba(99,102,241,0.5)';this.style.transform='translateY(-3px)'"
-          onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.transform='none'">
-          <div style="font-size:1.5rem;margin-bottom:8px;">📝</div>
-          <div style="font-size:.9rem;font-weight:700;color:#f1f5f9;margin-bottom:4px;">更新履歴</div>
-          <div style="font-size:.78rem;color:#64748b;">最新の追加・変更情報</div>
-        </a>
-        <a href="faq.html"
-          style="display:block;padding:20px 22px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:14px;text-decoration:none;transition:border-color .25s,transform .25s;"
-          onmouseover="this.style.borderColor='rgba(99,102,241,0.5)';this.style.transform='translateY(-3px)'"
-          onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.transform='none'">
-          <div style="font-size:1.5rem;margin-bottom:8px;">❓</div>
-          <div style="font-size:.9rem;font-weight:700;color:#f1f5f9;margin-bottom:4px;">FAQ</div>
-          <div style="font-size:.78rem;color:#64748b;">よくある質問と回答</div>
-        </a>
-      </div>
-    </section>
 
-    <footer class="site-footer" style="margin-top:60px;">
-      <div class="site-footer-inner">
-        <div class="footer-logo">anime.js <span>30 Animations</span></div>
-        <nav class="footer-nav" aria-label="フッターナビゲーション">
-          <div class="footer-nav-group">
-            <span class="group-label">コンテンツ</span>
-            <a href="index.html">ホーム（30デモ）</a>
-            <a href="blog/index.html">Blog</a>
+    <!-- ⑤ フッター（コンパクト） -->
+    <footer class="site-footer-compact">
+      <div class="sfc-inner">
+        <div class="sfc-top">
+          <span class="sfc-logo">anime.js 30 Animations</span>
+          <div class="sfc-links">
+            <a href="index.html">ホーム</a>
             <a href="guides/timing-easing.html">Guides</a>
-            <a href="changelog.html">更新履歴</a>
-          </div>
-          <div class="footer-nav-group">
-            <span class="group-label">サイト情報</span>
+            <a href="blog/index.html">Blog</a>
+            <a href="faq.html">FAQ</a>
             <a href="about.html">運営者情報</a>
             <a href="contact.html">お問い合わせ</a>
             <a href="sitemap.html">サイトマップ</a>
-            <a href="faq.html">FAQ</a>
           </div>
-          <div class="footer-nav-group">
-            <span class="group-label">ポリシー</span>
+        </div>
+        <div class="sfc-divider"></div>
+        <div class="sfc-bottom">
+          <span class="sfc-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</span>
+          <div class="sfc-policy">
             <a href="terms.html">利用規約</a>
-            <a href="disclaimer.html">免責事項</a>
-            <a href="cookie.html">Cookie ポリシー</a>
-            <a href="advertising.html">広告配信について</a>
             <a href="privacy.html">プライバシーポリシー</a>
+            <a href="disclaimer.html">免責事項</a>
+            <a href="cookie.html">Cookie</a>
+            <a href="advertising.html">広告</a>
           </div>
-        </nav>
-        <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
+        </div>
       </div>
     </footer>
+
     <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="トップへ戻る">
       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"
         stroke-linecap="round" stroke-linejoin="round">
