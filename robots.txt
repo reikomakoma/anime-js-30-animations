@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://statuesque-blancmange-6afb8c.netlify.app/sitemap.xml

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>コンバージョンを高めるLPのモーション設計 - anime.js Blog</title>
+    <meta name="description" content="ランディングページの「動き」でCVRを改善する。ヒーローセクション・CTA・スクロール演出の設計原則と、anime.jsでの実装例を解説します。" />
+    <meta property="og:title" content="コンバージョンを高めるLPのモーション設計 ── 視線誘導の科学" />
+    <meta property="og:description" content="LPのCVR改善に繋がるモーション設計。ヒーロー・CTA・スクロール演出の実装例。" />
+    <meta property="og:image" content="https://statuesque-blancmange-6afb8c.netlify.app/og-image.png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://statuesque-blancmange-6afb8c.netlify.app/blog/07.html" />
+    <link rel="canonical" href="https://statuesque-blancmange-6afb8c.netlify.app/blog/07.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../pages.css" />
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"コンバージョンを高めるLPのモーション設計","author":{"@type":"Person","name":"rei"},"datePublished":"2026-03-03","dateModified":"2026-03-03","publisher":{"@type":"Organization","name":"anime.js 30アニメーション完全解説"},"url":"https://statuesque-blancmange-6afb8c.netlify.app/blog/07.html"}</script>
+</head>
+
+<body data-theme="dark">
+    <div class="page-wrapper">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+            <a href="../index.html">Home</a><span>›</span>
+            <a href="index.html">Blog</a><span>›</span>
+            <span>LPのモーション設計</span>
+        </nav>
+        <header class="page-header">
+            <div class="page-badge">LP設計</div>
+            <h1>コンバージョンを高めるLPのモーション設計<br>── 視線誘導の科学</h1>
+            <p class="page-meta">2026年3月3日　／　著者：rei　／　読了時間：約10分</p>
+        </header>
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+        <article class="article-body">
+            <h2>モーションとコンバージョンの関係</h2>
+            <p>ランディングページ（LP）にアニメーションを追加することは、ただ「かっこよく見せる」ためではありません。適切なモーション設計はユーザーの視線を意図した順番で誘導し、情報の優先順位を直感的に伝えます。その結果としてCVR（コンバージョン率）の向上に繋がります。
+            </p>
+            <p>ただし、過剰なアニメーションはページ速度を低下させ、逆効果になります。「少なく、的確に」が原則です。</p>
+
+            <h2>ヒーローセクションの入場演出</h2>
+            <p>ページ読み込み直後、ユーザーが最初に目にするヒーローセクションの演出が最も重要です。要素を順番に登場させることで「何を見れば良いか」を明確にします。</p>
+            <pre><code>// ヒーロー入場アニメーション
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const tl = anime.timeline({ easing: 'easeOutCubic' });
+
+// 1. 背景（最初に）
+tl.add({ targets: '.hero-bg', opacity: [0, 1], duration: 500 })
+// 2. キャッチコピー（少し上から）
+  .add({
+    targets: '.hero-headline',
+    opacity: [0, 1],
+    translateY: reduced ? 0 : [24, 0],
+    duration: 500
+  }, '-=200')
+// 3. サブコピー
+  .add({
+    targets: '.hero-subtext',
+    opacity: [0, 1],
+    translateY: reduced ? 0 : [16, 0],
+    duration: 400
+  }, '-=250')
+// 4. CTAボタン（最後・スケールで強調）
+  .add({
+    targets: '.hero-cta',
+    opacity: [0, 1],
+    scale: reduced ? 1 : [0.88, 1],
+    duration: 350,
+    easing: 'easeOutBack'
+  }, '-=200');</code></pre>
+
+            <h2>スクロール連動フェードインの設計</h2>
+            <p>スクロールに応じて順番に登場する要素は「まだ先がある」という期待感を生み、ユーザーをページ下部へ誘導します。ただし以下に注意してください。</p>
+            <ul>
+                <li>アニメーション前の要素は<code>opacity:0</code>にする（SEOのためvisibilityは非推奨）</li>
+                <li>スクロールイベントではなくIntersection Observerを使う（パフォーマンス）</li>
+                <li>アニメーション距離は最大30px程度（大きな移動はモーション酔いの原因）</li>
+            </ul>
+            <pre><code>// スクロール連動フェードイン
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    anime({
+      targets: el,
+      opacity: [0, 1],
+      translateY: reduced ? 0 : [20, 0],
+      duration: reduced ? 200 : 500,
+      easing: 'easeOutCubic'
+    });
+    io.unobserve(el);
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('[data-scroll-reveal]').forEach(el => {
+  el.style.opacity = '0';
+  io.observe(el);
+});</code></pre>
+
+            <h2>CTAボタンのマイクロアニメーション</h2>
+            <p>最終的なコンバージョンポイントとなるCTAボタンには、存在感を示すサブルなアニメーションを付与します。ただし「うるさすぎない」ことが重要です。</p>
+            <pre><code>// ホバー時の微細なリフト（CSSで実装が最も軽量）
+//.cta-btn { transition: transform 0.15s easeOutCubic, box-shadow 0.15s; }
+//.cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.5); }
+
+// 定期的な「注目パルス」（ページ滞在30秒後）
+setTimeout(() => {
+  anime({
+    targets: '.main-cta',
+    scale: [1, 1.04, 1],
+    duration: 600,
+    easing: 'easeOutElastic(1, 0.5)'
+  });
+}, 30000);</code></pre>
+
+            <h2>社会的証明（数値・レビュー）のカウントアップ</h2>
+            <p>「10,000+ユーザー」「満足度98%」などの数値をカウントアップ表示する演出は、統計的な指標を印象的に強調し、信頼感を高めます。</p>
+            <pre><code>// カウントアップアニメーション
+function countUp(el, target, duration = 1200) {
+  anime({
+    targets: { val: 0 },
+    val: target,
+    duration,
+    easing: 'easeOutExpo',
+    update: function(anim) {
+      el.textContent = Math.round(anim.animations[0].currentValue).toLocaleString();
+    }
+  });
+}
+
+// Intersection Observerで画面内に入ったら起動
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    countUp(entry.target, parseInt(entry.target.dataset.count), 1200);
+    observer.unobserve(entry.target);
+  });
+});
+
+document.querySelectorAll('[data-count]').forEach(el => observer.observe(el));</code></pre>
+
+            <h2>パフォーマンスと速度の注意点</h2>
+            <p>LPはファーストビューの読み込み速度がCVRに直結します。以下を守りましょう。</p>
+            <ul>
+                <li>アニメーション用のJSは<code>defer</code>または<code>async</code>で読み込む</li>
+                <li>大きな画像アニメーションはCSSで処理し、JavaScriptアニメーションはtransform/opacityのみ</li>
+                <li>クリティカルパスCSSにアニメーション前スタイル（opacity:0等）を含める</li>
+                <li>Core Web Vitals（LCP・CLS・INP）への影響を定期的にPageSpeed Insightsで計測する</li>
+            </ul>
+        </article>
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+        <div class="author-box">
+            <div class="author-avatar">R</div>
+            <div class="author-info">
+                <h4>rei</h4>
+                <p>フロントエンドエンジニア。最終更新：2026年3月3日</p>
+            </div>
+        </div>
+        <div class="related-section">
+            <h3>関連コンテンツ</h3>
+            <div class="related-links">
+                <a href="../guides/ui-patterns.html" class="related-link">UIアニメパターン集</a>
+                <a href="../guides/performance.html" class="related-link">パフォーマンス最適化ガイド</a>
+                <a href="../index.html?cat=text" class="related-link">ホーム：テキストデモ</a>
+            </div>
+        </div>
+    </div>
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-logo">anime.js <span>30 Animations</span></div>
+            <nav class="footer-nav">
+                <div class="footer-nav-group"><span class="group-label">コンテンツ</span><a
+                        href="../index.html">ホーム（30デモ）</a><a href="index.html">Blog</a><a
+                        href="../guides/timing-easing.html">Guides</a><a href="../changelog.html">更新履歴</a></div>
+                <div class="footer-nav-group"><span class="group-label">サイト情報</span><a href="../about.html">運営者情報</a><a
+                        href="../contact.html">お問い合わせ</a><a href="../sitemap.html">サイトマップ</a><a
+                        href="../faq.html">FAQ</a></div>
+                <div class="footer-nav-group"><span class="group-label">ポリシー</span><a href="../terms.html">利用規約</a><a
+                        href="../disclaimer.html">免責事項</a><a href="../cookie.html">Cookie ポリシー</a><a
+                        href="../advertising.html">広告配信について</a><a href="../privacy.html">プライバシーポリシー</a></div>
+            </nav>
+            <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
+        </div>
+    </footer>
+</body>
+
+</html>

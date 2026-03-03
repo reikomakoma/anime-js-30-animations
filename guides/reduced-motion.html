@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>モーション配慮設計（prefers-reduced-motion）ガイド - anime.js 30アニメーション完全解説</title>
+    <meta name="description"
+        content="prefers-reduced-motionメディアクエリを使ったアクセシブルなアニメーション設計。vestibular disorderへの配慮とanime.jsでの実装パターンを解説。" />
+    <meta property="og:title" content="モーション配慮設計（Reduced Motion）ガイド | anime.js Guides" />
+    <meta property="og:description"
+        content="prefers-reduced-motionを使ったアクセシブルなアニメーション実装ガイド。WCAGガイドラインとanime.jsでの対応コードを解説。" />
+    <meta property="og:image" content="https://statuesque-blancmange-6afb8c.netlify.app/og-image.png" />
+    <meta property="og:url" content="https://statuesque-blancmange-6afb8c.netlify.app/guides/reduced-motion.html" />
+    <link rel="canonical" href="https://statuesque-blancmange-6afb8c.netlify.app/guides/reduced-motion.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../pages.css" />
+</head>
+
+<body data-theme="dark">
+    <div class="page-wrapper">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+            <a href="../index.html">Home</a>
+            <span>›</span>
+            <span>Guides</span>
+            <span>›</span>
+            <span>モーション配慮設計</span>
+        </nav>
+
+        <header class="page-header">
+            <div class="page-badge">Guide</div>
+            <h1>モーション配慮設計<br>prefers-reduced-motion 完全ガイド</h1>
+            <p class="page-meta">最終更新：2026年3月3日　／　読了時間：約7分</p>
+        </header>
+
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+
+        <article class="article-body">
+            <h2>なぜモーション配慮が必要か</h2>
+            <p>世界人口の一定割合が、前庭機能障害（vestibular
+                disorder）や偏頭痛、光過敏症などを持ちます。これらの方々にとって、画面上の激しいモーション（特にパラレックス・大きな平行移動・フラッシュ）は身体的な不快感や、最悪の場合は発作を引き起こすことがあります。
+            </p>
+            <p>WCAG 2.1 ガイドライン（Success Criterion
+                2.3.3）では、ユーザーがモーションを止められるようにすることを推奨しています。主要OS（iOS・macOS・Windows・Android）にはシステム設定として「視差効果を減らす /
+                動きを減らす」オプションが存在します。</p>
+
+            <h2>prefers-reduced-motion メディアクエリ</h2>
+            <p>CSS/JavaScriptからOS設定を検出できます。</p>
+            <pre><code>/* CSS */
+@media (prefers-reduced-motion: reduce) {
+  /* モーションを無効化・最小化 */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.15s !important;
+  }
+}</code></pre>
+            <pre><code>/* JavaScript (anime.jsでの検出) */
+const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (prefersReduced) {
+  // フェードのみ（移動なし）
+  anime({ targets: '.card', opacity: [0, 1], duration: 300 });
+} else {
+  // フル演出
+  anime({ targets: '.card', opacity: [0, 1], translateY: [20, 0], duration: 600 });
+}</code></pre>
+
+            <h2>anime.jsでの実装パターン</h2>
+
+            <h3>パターン1：グローバル設定ユーティリティ</h3>
+            <p>サイト全体でreduced motion設定を一元管理する方法です。</p>
+            <pre><code>// utils/animation.js
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function animeRM(options) {
+  if (REDUCED) {
+    // 移動をゼロ化、durationを最小化
+    const safeOpts = { ...options };
+    ['translateX', 'translateY', 'rotate', 'scale'].forEach(k => {
+      if (safeOpts[k]) delete safeOpts[k]; // トランスフォームを除去
+    });
+    safeOpts.duration = Math.min(options.duration || 400, 200);
+    return anime(safeOpts);
+  }
+  return anime(options);
+}
+
+// 使用例
+animeRM({
+  targets: '.hero-text',
+  opacity: [0, 1],
+  translateY: [30, 0], // reduced time時は除去される
+  duration: 700
+});</code></pre>
+
+            <h3>パターン2：staggerの無効化</h3>
+            <p>reduced motion時はスタッガーを0にして즉시表示します。</p>
+            <pre><code>const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+anime({
+  targets: '.nav-item',
+  opacity: [0, 1],
+  translateX: REDUCED ? 0 : [-16, 0],  // reduced時は移動なし
+  delay: REDUCED ? 0 : anime.stagger(80), // reduced時はstagger無効
+  duration: REDUCED ? 200 : 400,
+  easing: 'easeOutCubic'
+});</code></pre>
+
+            <h3>パターン3：イベントリスナーで動的対応</h3>
+            <p>ページ読み込み後にユーザーが設定を変更した場合にも対応します。</p>
+            <pre><code>const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+mq.addEventListener('change', (e) => {
+  if (e.matches) {
+    // すべてのアニメーションを停止
+    anime.running.forEach(a => a.pause());
+  } else {
+    // アニメーションを再開
+    anime.running.forEach(a => a.play());
+  }
+});</code></pre>
+
+            <h2>何を減らし、何を残すか</h2>
+            <p>「すべてのアニメーションを消す」のはやり過ぎです。適切な判断基準を持ちましょう。</p>
+            <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:20px;">
+                <thead>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                        <th style="text-align:left;padding:10px 12px;color:var(--text-dimmer);width:40%">プロパティ</th>
+                        <th style="text-align:left;padding:10px 12px;color:var(--text-dimmer);">Reduced時の対処</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <td style="padding:10px 12px;color:var(--text);">translateX/Y（移動）</td>
+                        <td style="padding:10px 12px;color:var(--text);">❌ 停止（0に固定）または大幅縮小</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <td style="padding:10px 12px;color:var(--text);">rotate（回転）</td>
+                        <td style="padding:10px 12px;color:var(--text);">❌ 停止（特にループ回転）</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <td style="padding:10px 12px;color:var(--text);">scale（拡縮）</td>
+                        <td style="padding:10px 12px;color:var(--text);">⚠️ 小さい変化（0.95→1程度）は許容</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <td style="padding:10px 12px;color:var(--text);">opacity（フェード）</td>
+                        <td style="padding:10px 12px;color:var(--text);">✅ OK（durationを短縮推奨）</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:10px 12px;color:var(--text);">backgroundColor（色）</td>
+                        <td style="padding:10px 12px;color:var(--text);">✅ OK（transition短縮推奨）</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>本サイトでの実装</h2>
+            <p>本サイトのHome（30デモ）では、全デモが <code>prefers-reduced-motion: reduce</code>
+                検出時に自動的に平行移動をゼロ化・スタッガーを最小化してフェード中心の表示に切り替わります。各デモカードの「Reduced Motion」欄で具体的な簡略化内容を確認できます。</p>
+        </article>
+
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+
+        <div class="author-box">
+            <div class="author-avatar">R</div>
+            <div class="author-info">
+                <h4>rei</h4>
+                <p>フロントエンドエンジニア。最終更新：2026年3月3日</p>
+            </div>
+        </div>
+
+        <div class="related-section">
+            <h3>関連コンテンツ</h3>
+            <div class="related-links">
+                <a href="timing-easing.html" class="related-link">タイミングとイージングガイド</a>
+                <a href="performance.html" class="related-link">パフォーマンス最適化ガイド</a>
+                <a href="../index.html" class="related-link">ホーム：30デモ一覧</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-logo">anime.js <span>30 Animations</span></div>
+            <nav class="footer-nav">
+                <div class="footer-nav-group">
+                    <span class="group-label">コンテンツ</span>
+                    <a href="../index.html">ホーム（30デモ）</a>
+                    <a href="../blog/index.html">Blog</a>
+                    <a href="timing-easing.html">Guides</a>
+                    <a href="../changelog.html">更新履歴</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">サイト情報</span>
+                    <a href="../about.html">運営者情報</a>
+                    <a href="../contact.html">お問い合わせ</a>
+                    <a href="../sitemap.html">サイトマップ</a>
+                    <a href="../faq.html">FAQ</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">ポリシー</span>
+                    <a href="../terms.html">利用規約</a>
+                    <a href="../disclaimer.html">免責事項</a>
+                    <a href="../cookie.html">Cookie ポリシー</a>
+                    <a href="../advertising.html">広告配信について</a>
+                    <a href="../privacy.html">プライバシーポリシー</a>
+                </div>
+            </nav>
+            <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
+        </div>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>anime.jsでよくあるミスと対策 - anime.js 30アニメーション完全解説</title>
+    <meta name="description" content="anime.jsを使うときにハマりやすいミスTOP10と、その具体的な解決策を解説。初心者から中級者まで役立つデバッグノウハウ集。" />
+    <meta property="og:title" content="anime.jsでよくあるミスと対策 | anime.js Guides" />
+    <meta property="og:description" content="anime.jsで陥りやすい罠と解決策10選。セレクタ・イベント重複・メモリリーク・パフォーマンス問題を徹底解説。" />
+    <meta property="og:image" content="https://statuesque-blancmange-6afb8c.netlify.app/og-image.png" />
+    <meta property="og:url" content="https://statuesque-blancmange-6afb8c.netlify.app/guides/common-mistakes.html" />
+    <link rel="canonical" href="https://statuesque-blancmange-6afb8c.netlify.app/guides/common-mistakes.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../pages.css" />
+</head>
+
+<body data-theme="dark">
+    <div class="page-wrapper">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+            <a href="../index.html">Home</a>
+            <span>›</span>
+            <span>Guides</span>
+            <span>›</span>
+            <span>よくあるミスと対策</span>
+        </nav>
+
+        <header class="page-header">
+            <div class="page-badge">Guide</div>
+            <h1>anime.jsで<br>よくあるミスと対策</h1>
+            <p class="page-meta">最終更新：2026年3月3日　／　読了時間：約9分</p>
+        </header>
+
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+
+        <article class="article-body">
+            <h2>ミス1：ターゲットが存在しない状態でアニメーションを呼ぶ</h2>
+            <p>最もよくある原因。<code>targets</code>に指定したCSSセレクタに一致する要素がDOMに存在しない場合、アニメーションは静かに失敗します（エラーが出ない）。</p>
+            <pre><code>// ❌ DOM読み込み前に実行している
+anime({ targets: '#modal', opacity: [0, 1] }); // nullになる
+
+// ✅ DOMContentLoaded後（またはscriptタグをbody末尾）
+document.addEventListener('DOMContentLoaded', () => {
+  anime({ targets: '#modal', opacity: [0, 1] });
+});
+
+// デバッグ：ターゲットを確認
+console.log(document.querySelector('#modal')); // nullでないか確認</code></pre>
+
+            <h2>ミス2：プロパティ名のケース間違い</h2>
+            <p>anime.jsではCSSプロパティ名をcamelCaseで指定します。ハイフン区切りのCSSプロパティ名はそのまま使えません。</p>
+            <pre><code>// ❌ CSSのままのハイフン区切りは無効
+anime({ targets: '#el', 'border-radius': '50%' });
+
+// ✅ camelCaseで指定
+anime({ targets: '#el', borderRadius: '50%' });
+
+// SVGの場合は文字列のまま（一部例外あり）
+anime({ targets: 'path', 'stroke-dashoffset': [100, 0] }); // これは動作する</code></pre>
+
+            <h2>ミス3：ループアニメーションのメモリリーク</h2>
+            <p><code>loop: true</code> のアニメーションは、対象の要素が削除されてもアニメーションオブジェクトが実行され続けます。コンポーネントのアンマウント時やSPA
+                のルート変更時に必ず停止処理を入れましょう。</p>
+            <pre><code>// アニメーションオブジェクトを変数で保持
+const loopAnim = anime({ targets: '.loader', rotate: '1turn', loop: true, easing: 'linear' });
+
+// 不要になったタイミングで停止
+function cleanup() {
+  loopAnim.pause();
+  // または
+  anime.remove('.loader'); // ターゲット指定で一括削除
+}
+
+// Reactの例
+useEffect(() => {
+  const anim = anime({ targets: ref.current, ... });
+  return () => anim.pause(); // クリーンアップ
+}, []);</code></pre>
+
+            <h2>ミス4：イベントハンドラの重複登録</h2>
+            <p>クリックイベントでアニメーションを起動する場合、ハンドラを複数回登録するとアニメーションが重複して予期しない動作になります。</p>
+            <pre><code>// ❌ クリックするたびにハンドラが増える
+function setupButton() {
+  document.querySelector('#btn').addEventListener('click', () => {
+    anime({ targets: '#btn', scale: [1, 1.1, 1] });
+  });
+}
+setupButton(); // 複数回呼ばれると重複登録される
+
+// ✅ フラグで管理 または AbortController を使う
+const btn = document.querySelector('#btn');
+if (!btn._bound) {
+  btn._bound = true;
+  btn.addEventListener('click', () => {
+    anime({ targets: btn, scale: [1, 1.1, 1] });
+  });
+}</code></pre>
+
+            <h2>ミス5：transformOriginの設定忘れ</h2>
+            <p><code>scale</code>や<code>rotate</code>は変形の基準点（<code>transform-origin</code>）がデフォルトで「要素の中心」です。スケールアニメーションで「角から広がる」「上端を軸に回転」したい場合は事前にCSSでtransform-originを設定する必要があります。
+            </p>
+            <pre><code>/* CSS */
+#dropdown { transform-origin: top center; }
+
+/* JavaScript */
+anime({ targets: '#dropdown', scaleY: [0, 1], opacity: [0, 1], easing: 'easeOutBack' });</code></pre>
+
+            <h2>ミス6：durationが長すぎる</h2>
+            <p>開発時に「ゆっくり動いてほしい」と感じて1000ms以上を設定しがちですが、日常的なUIインタラクションでは150〜400msが適正です。詳しくは<a
+                    href="timing-easing.html">タイミングとイージングガイド</a>を参照。</p>
+
+            <h2>ミス7：アニメーション値の型ミス</h2>
+            <p>アニメーション値の指定は数値（px単位は省略）またはCSS値の文字列です。</p>
+            <pre><code>// ❌ 数値に単位をつけると無効（translateは単位不要）
+anime({ targets: '#el', translateX: '100px' }); // 動くが非推奨
+
+// ✅ 数値のみ（anime.jsがpxと解釈）
+anime({ targets: '#el', translateX: 100 });
+
+// ✅ 文字列が必要なケース（%など）
+anime({ targets: '#bar', width: ['0%', '80%'] });
+
+// ✅ 回転
+anime({ targets: '#icon', rotate: '1turn' }); // または 360 （deg）</code></pre>
+
+            <h2>ミス8：SVGモーフィングでポイント数が不一致</h2>
+            <p>SVGの<code>d</code>属性をアニメーションする場合、変形前後の<code>d</code>属性のアンカーポイント数が完全に一致している必要があります。不一致の場合はモーフィングが正常に機能しません。
+            </p>
+            <pre><code>// ❌ ポイント数が違う（M L L L Z = 4点 vs M L L L L Z = 5点）
+anime({ targets: 'path', d: [{ value: 'M0,0 L100,0 L100,100 L0,100 Z' }] });
+// 元のdが 'M0,0 L50,0 L100,50 L50,100 L0,50 Z' (5点) の場合は失敗
+
+// ✅ ポイント数を揃える（両方5点に統一）</code></pre>
+
+            <h2>ミス9：staggerを使わずにdelayを手動計算</h2>
+            <p>複数要素に個別にdelayを設定するのは保守性が低下します。<code>anime.stagger()</code>を使いましょう。</p>
+            <pre><code>// ❌ 手動で計算（保守性が低い）
+anime({ targets: els[0], opacity: [0,1], delay: 0 });
+anime({ targets: els[1], opacity: [0,1], delay: 100 });
+anime({ targets: els[2], opacity: [0,1], delay: 200 });
+
+// ✅ staggerで自動計算
+anime({ targets: '.item', opacity: [0, 1], delay: anime.stagger(100) });</code></pre>
+
+            <h2>ミス10：complete後に要素を操作しない</h2>
+            <p>アニメーション完了後にdisplay:noneにしたい等の後処理は必ず<code>complete</code>コールバックで行います。</p>
+            <pre><code>// ❌ アニメーション中にdisplay:noneを設定すると即消える
+anime({ targets: '#el', opacity: [1, 0] });
+document.querySelector('#el').style.display = 'none'; // アニメ中に消える！
+
+// ✅ completeコールバックで後処理
+anime({
+  targets: '#el',
+  opacity: [1, 0],
+  duration: 300,
+  complete: () => {
+    document.querySelector('#el').style.display = 'none';
+  }
+});</code></pre>
+        </article>
+
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+
+        <div class="author-box">
+            <div class="author-avatar">R</div>
+            <div class="author-info">
+                <h4>rei</h4>
+                <p>フロントエンドエンジニア。最終更新：2026年3月3日</p>
+            </div>
+        </div>
+
+        <div class="related-section">
+            <h3>関連コンテンツ</h3>
+            <div class="related-links">
+                <a href="timing-easing.html" class="related-link">タイミング・イージングガイド</a>
+                <a href="performance.html" class="related-link">パフォーマンス最適化ガイド</a>
+                <a href="../faq.html" class="related-link">よくある質問（FAQ）</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-logo">anime.js <span>30 Animations</span></div>
+            <nav class="footer-nav">
+                <div class="footer-nav-group">
+                    <span class="group-label">コンテンツ</span>
+                    <a href="../index.html">ホーム（30デモ）</a>
+                    <a href="../blog/index.html">Blog</a>
+                    <a href="timing-easing.html">Guides</a>
+                    <a href="../changelog.html">更新履歴</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">サイト情報</span>
+                    <a href="../about.html">運営者情報</a>
+                    <a href="../contact.html">お問い合わせ</a>
+                    <a href="../sitemap.html">サイトマップ</a>
+                    <a href="../faq.html">FAQ</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">ポリシー</span>
+                    <a href="../terms.html">利用規約</a>
+                    <a href="../disclaimer.html">免責事項</a>
+                    <a href="../cookie.html">Cookie ポリシー</a>
+                    <a href="../advertising.html">広告配信について</a>
+                    <a href="../privacy.html">プライバシーポリシー</a>
+                </div>
+            </nav>
+            <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
+        </div>
+    </footer>
+</body>
+
+</html>

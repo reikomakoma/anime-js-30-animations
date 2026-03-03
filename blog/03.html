@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>マイクロインタラクション実装チェックリスト - anime.js Blog</title>
+    <meta name="description" content="ボタン押下・フォーム・エラー表示など日常的なUIに組み込むマイクロインタラクションの設計・実装チェックリスト12項目。anime.jsの実装例付き。" />
+    <meta property="og:title" content="マイクロインタラクション実装チェックリスト ── 押さえるべき12のポイント" />
+    <meta property="og:description" content="UIマイクロインタラクションの設計・実装チェックリスト。anime.jsコード例付き。" />
+    <meta property="og:image" content="https://statuesque-blancmange-6afb8c.netlify.app/og-image.png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://statuesque-blancmange-6afb8c.netlify.app/blog/03.html" />
+    <link rel="canonical" href="https://statuesque-blancmange-6afb8c.netlify.app/blog/03.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../pages.css" />
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"マイクロインタラクション実装チェックリスト","author":{"@type":"Person","name":"rei"},"datePublished":"2026-03-03","dateModified":"2026-03-03","publisher":{"@type":"Organization","name":"anime.js 30アニメーション完全解説"},"url":"https://statuesque-blancmange-6afb8c.netlify.app/blog/03.html"}</script>
+</head>
+
+<body data-theme="dark">
+    <div class="page-wrapper">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+            <a href="../index.html">Home</a><span>›</span>
+            <a href="index.html">Blog</a><span>›</span>
+            <span>マイクロインタラクションチェックリスト</span>
+        </nav>
+        <header class="page-header">
+            <div class="page-badge">UX設計</div>
+            <h1>マイクロインタラクション実装チェックリスト<br>── 押さえるべき12のポイント</h1>
+            <p class="page-meta">2026年3月3日　／　著者：rei　／　読了時間：約10分</p>
+        </header>
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+        <article class="article-body">
+            <h2>マイクロインタラクションとは</h2>
+            <p>マイクロインタラクション（Micro-interaction）とは、ユーザーの単一の操作に対するシステムの細かなフィードバックのことです。ボタンを押した際の小さなアニメーション、フォーム入力時の即時バリデーション表示、ファイルをドロップした際の受け入れ演出、などが代表例です。
+            </p>
+            <p>優れたマイクロインタラクションは「気づかれない」が、ないと「なんか使いにくい」と感じさせます。それがUXにおけるマイクロインタラクションの存在意義です。</p>
+
+            <h2>チェックリスト 12項目</h2>
+
+            <h3>✅ 1. ボタンの押下フィードバック</h3>
+            <p>クリック時に視覚的なフィードバックがあるか。scale縮小（押し込み感）またはopacity低下を使う。</p>
+            <pre><code>btn.addEventListener('click', () => {
+  anime({ targets: btn, scale: [1, 0.95, 1], duration: 200, easing: 'easeOutCubic' });
+});</code></pre>
+
+            <h3>✅ 2. 状態変化の視覚的インジケーター</h3>
+            <p>ON/OFFトグルやお気に入り追加など、状態変化は色+形（またはアイコン）を同時に変化させる。</p>
+
+            <h3>✅ 3. ローディング状態の表示</h3>
+            <p>非同期処理中は必ずローディングインジケーターを表示。ユーザーを「置いてけぼり」にしない。</p>
+            <pre><code>// スピナーを表示してAPIコール
+const spinner = document.querySelector('.spinner');
+anime({ targets: spinner, opacity: [0, 1], duration: 200 });
+const anim = anime({ targets: spinner, rotate: '1turn', loop: true, easing: 'linear', duration: 1000 });
+
+fetch('/api/data')
+  .then(res => res.json())
+  .then(data => {
+    anim.pause();
+    anime({ targets: spinner, opacity: [1, 0], duration: 200 });
+    renderData(data);
+  });</code></pre>
+
+            <h3>✅ 4. 成功フィードバック</h3>
+            <p>フォーム送信成功・操作完了後の肯定的なフィードバック。チェックマークアニメーションや色変化で「完了了」を伝える。</p>
+
+            <h3>✅ 5. エラーフィードバック</h3>
+            <p>バリデーションエラーは見逃されないよう「シェイク（横揺れ）」または「バウンス（上から落下）」を使う。</p>
+            <pre><code>function shakeError(el) {
+  anime({ targets: el, translateX: [0, -8, 8, -6, 6, -4, 4, 0], duration: 500, easing: 'easeInOutSine' });
+}</code></pre>
+
+            <h3>✅ 6. フォーカス状態の視覚化</h3>
+            <p>フォーカス時にborder-colorやbox-shadowをアニメーションで変化させる。CSSのtransitionで十分なケースが多い。</p>
+
+            <h3>✅ 7. ホバーフィードバック</h3>
+            <p>インタラクティブな要素はホバー時に変化すること（cursor:pointerだけでは不十分）。translateY:-2px や opacity変化など。</p>
+
+            <h3>✅ 8. ドラッグ＆ドロップの受け入れ演出</h3>
+            <p>ドロップゾーンに要素が近づいたとき、枠が光る・拡大するなどでドロップ可能を示す。</p>
+
+            <h3>✅ 9. 削除・破壊操作の確認演出</h3>
+            <p>削除アニメーション（縮小消滅）→ Toastで「削除しました」+「元に戻す」ボタン表示。破壊的操作に対する保険。</p>
+
+            <h3>✅ 10. インライン編集の遷移</h3>
+            <p>テキストからinputへの切り替え時、高さ変化をアニメーションで滑らかにする。ガタッと変わるのはNGです。</p>
+
+            <h3>✅ 11. スクロール連動の視覚効果</h3>
+            <p>Intersection Observerでviewport内に入った要素をフェードインさせる（スクロールイベントは使わない）。</p>
+
+            <h3>✅ 12. Reduced Motion対応</h3>
+            <p>すべての上記インタラクションについて、prefers-reduced-motionがreduceの場合は移動を省き、フェードのみにする。</p>
+
+            <h2>実装の優先度</h2>
+            <p>12項目すべてを一度に実装しようとするのは禁物です。まずユーザーが最も頻繁に触れる箇所（フォーム・ボタン・ローディング）から始め、段階的に改善していきましょう。マイクロインタラクションの品質はUX全体の品質に直結します。
+            </p>
+        </article>
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+        <div class="author-box">
+            <div class="author-avatar">R</div>
+            <div class="author-info">
+                <h4>rei</h4>
+                <p>フロントエンドエンジニア。最終更新：2026年3月3日</p>
+            </div>
+        </div>
+        <div class="related-section">
+            <h3>関連コンテンツ</h3>
+            <div class="related-links">
+                <a href="../guides/ui-patterns.html" class="related-link">UIアニメパターン集</a>
+                <a href="../guides/timing-easing.html" class="related-link">タイミング・イージングガイド</a>
+                <a href="../index.html?cat=ui" class="related-link">ホーム：UIパーツデモ</a>
+            </div>
+        </div>
+    </div>
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-logo">anime.js <span>30 Animations</span></div>
+            <nav class="footer-nav">
+                <div class="footer-nav-group"><span class="group-label">コンテンツ</span><a
+                        href="../index.html">ホーム（30デモ）</a><a href="index.html">Blog</a><a
+                        href="../guides/timing-easing.html">Guides</a><a href="../changelog.html">更新履歴</a></div>
+                <div class="footer-nav-group"><span class="group-label">サイト情報</span><a href="../about.html">運営者情報</a><a
+                        href="../contact.html">お問い合わせ</a><a href="../sitemap.html">サイトマップ</a><a
+                        href="../faq.html">FAQ</a></div>
+                <div class="footer-nav-group"><span class="group-label">ポリシー</span><a href="../terms.html">利用規約</a><a
+                        href="../disclaimer.html">免責事項</a><a href="../cookie.html">Cookie ポリシー</a><a
+                        href="../advertising.html">広告配信について</a><a href="../privacy.html">プライバシーポリシー</a></div>
+            </nav>
+            <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
+        </div>
+    </footer>
+</body>
+
+</html>

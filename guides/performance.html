@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>アニメーションのパフォーマンス最適化ガイド - anime.js 30アニメーション完全解説</title>
+    <meta name="description"
+        content="anime.jsアニメーションのパフォーマンス最適化。GPUアクセラレーション・will-change・composite層・60fps達成のためのベストプラクティスを解説。" />
+    <meta property="og:title" content="アニメーションのパフォーマンス最適化ガイド | anime.js Guides" />
+    <meta property="og:description"
+        content="60fps達成のためのGPUアクセラレーション・will-change・composite層・requestAnimationFrame活用法を解説。" />
+    <meta property="og:image" content="https://statuesque-blancmange-6afb8c.netlify.app/og-image.png" />
+    <meta property="og:url" content="https://statuesque-blancmange-6afb8c.netlify.app/guides/performance.html" />
+    <link rel="canonical" href="https://statuesque-blancmange-6afb8c.netlify.app/guides/performance.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../pages.css" />
+</head>
+
+<body data-theme="dark">
+    <div class="page-wrapper">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+            <a href="../index.html">Home</a>
+            <span>›</span>
+            <span>Guides</span>
+            <span>›</span>
+            <span>パフォーマンス最適化</span>
+        </nav>
+
+        <header class="page-header">
+            <div class="page-badge">Guide</div>
+            <h1>アニメーションの<br>パフォーマンス最適化ガイド</h1>
+            <p class="page-meta">最終更新：2026年3月3日　／　読了時間：約8分</p>
+        </header>
+
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+
+        <article class="article-body">
+            <h2>60fpsとは何か ── なぜ重要か</h2>
+            <p>多くのモニターのリフレッシュレートは60Hz（1秒間に60フレーム）です。アニメーションが60fps（frames per
+                second）で動くと、各フレームの処理に与えられる時間は約16.7msです。この制約内で描画処理を完了できないと「コマ落ち（jank）」が発生し、ユーザーは「カクつき」として認識します。</p>
+            <p>Chromeの DevTools → Performance パネルで実際のフレームレートを計測できます。60fpsを下回るアニメーションは必ず改善しましょう。</p>
+
+            <h2>GPUアクセラレーションの活用</h2>
+            <p>ブラウザには描画を担当する「レンダリングパイプライン」があります。CSSプロパティを変更すると、パイプラインの一部または全部が再実行されます。</p>
+            <ul>
+                <li><strong>Layout（再描画が重い）</strong>：width, height, top, left, margin, padding など</li>
+                <li><strong>Paint（中程度）</strong>：background-color, box-shadow, border-color など</li>
+                <li><strong>Composite（最速・GPUのみ）</strong>：<code>transform</code>, <code>opacity</code></li>
+            </ul>
+            <p>アニメーションでは可能な限り <code>transform</code>（translateX/Y, scale, rotate）と <code>opacity</code>
+                のみを使いましょう。これらはGPUで処理されるため、layout/paintをスキップしてcompositeのみで描画されます。</p>
+            <pre><code>// ❌ leftをアニメーション → layout再計算が毎フレーム走る（重い）
+anime({ targets: '#el', left: [0, 100], duration: 500 });
+
+// ✅ translateXをアニメーション → compositeのみ（最速）
+anime({ targets: '#el', translateX: [0, 100], duration: 500 });</code></pre>
+
+            <h2>will-changeプロパティ</h2>
+            <p><code>will-change</code>
+                はブラウザに「このプロパティが変化する予定」と事前通知し、グラフィック層を事前に確保させます。ただし、<strong>すべての要素に設定するのは逆効果</strong>です。メモリを多く消費するため、実際にアニメーションする要素にだけ直前で設定し、アニメーション完了後は削除してください。
+            </p>
+            <pre><code>// アニメーション開始直前に設定
+el.style.willChange = 'transform, opacity';
+anime({
+  targets: el,
+  translateY: [30, 0],
+  opacity: [0, 1],
+  duration: 600,
+  complete: () => {
+    el.style.willChange = 'auto'; // 完了後はautoに戻す
+  }
+});</code></pre>
+
+            <h2>大量要素のアニメーション</h2>
+            <p>staggerで数百の要素を同時にアニメーションする場合、パフォーマンスが問題になることがあります。</p>
+
+            <h3>解決策1：requestAnimationFrameとチャンク処理</h3>
+            <pre><code>// 大量要素を50個ずつに分けてアニメーション
+const chunks = chunkArray(elements, 50);
+chunks.forEach((chunk, i) => {
+  setTimeout(() => {
+    anime({ targets: chunk, opacity: [0, 1], duration: 400 });
+  }, i * 100);
+});</code></pre>
+
+            <h3>解決策2：Intersection Observerで画面外を省略</h3>
+            <pre><code>const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      anime({ targets: entry.target, opacity: [0, 1], translateY: [20, 0] });
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.card').forEach(el => observer.observe(el));</code></pre>
+
+            <h2>ループアニメーションの最適化</h2>
+            <p><code>loop: true</code> なアニメーションは常にCPU/GPUリソースを消費し続けます。ページがバックグラウンドに入った場合（タブが非表示など）は停止させましょう。</p>
+            <pre><code>const anim = anime({ targets: '.spinner', rotate: '1turn', loop: true, easing: 'linear' });
+
+// Visibility API でバックグラウンド時は停止
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) anim.pause();
+  else anim.play();
+});</code></pre>
+
+            <h2>パフォーマンスチェックリスト</h2>
+            <ul>
+                <li>✅ translateX/Y / opacity のみでアニメーションしている</li>
+                <li>✅ width/height/top/left のアニメーションを避けている</li>
+                <li>✅ アニメーション要素に will-change を適切に設定・解除している</li>
+                <li>✅ ループアニメーションをバックグラウンド時に停止している</li>
+                <li>✅ 画面外の要素へのアニメーションを Intersection Observer で制御している</li>
+                <li>✅ DevTools > Performance でフレームレートを計測している</li>
+                <li>✅ prefers-reduced-motion でアニメーションを簡略化している</li>
+            </ul>
+        </article>
+
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+
+        <div class="author-box">
+            <div class="author-avatar">R</div>
+            <div class="author-info">
+                <h4>rei</h4>
+                <p>フロントエンドエンジニア。最終更新：2026年3月3日</p>
+            </div>
+        </div>
+
+        <div class="related-section">
+            <h3>関連コンテンツ</h3>
+            <div class="related-links">
+                <a href="timing-easing.html" class="related-link">タイミング・イージングガイド</a>
+                <a href="common-mistakes.html" class="related-link">よくあるミスと対策</a>
+                <a href="../index.html?cat=basic" class="related-link">ホーム：基本変形デモ</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-logo">anime.js <span>30 Animations</span></div>
+            <nav class="footer-nav">
+                <div class="footer-nav-group">
+                    <span class="group-label">コンテンツ</span>
+                    <a href="../index.html">ホーム（30デモ）</a>
+                    <a href="../blog/index.html">Blog</a>
+                    <a href="timing-easing.html">Guides</a>
+                    <a href="../changelog.html">更新履歴</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">サイト情報</span>
+                    <a href="../about.html">運営者情報</a>
+                    <a href="../contact.html">お問い合わせ</a>
+                    <a href="../sitemap.html">サイトマップ</a>
+                    <a href="../faq.html">FAQ</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">ポリシー</span>
+                    <a href="../terms.html">利用規約</a>
+                    <a href="../disclaimer.html">免責事項</a>
+                    <a href="../cookie.html">Cookie ポリシー</a>
+                    <a href="../advertising.html">広告配信について</a>
+                    <a href="../privacy.html">プライバシーポリシー</a>
+                </div>
+            </nav>
+            <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
+        </div>
+    </footer>
+</body>
+
+</html>

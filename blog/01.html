@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>UIモーション設計の原則 - anime.js Blog</title>
+    <meta name="description"
+        content="適切なアニメーションはUXを向上させ、不適切なアニメーションはユーザーを混乱させる。Googleが提唱する12のモーション原則をanime.jsの実例と共に解説。" />
+    <meta property="og:title" content="UIモーション設計の原則 ── なぜアニメーションはユーザーを助けるのか" />
+    <meta property="og:description" content="UIモーションの核心原則を解説。適切なアニメーションでUXを向上させる方法。" />
+    <meta property="og:image" content="https://statuesque-blancmange-6afb8c.netlify.app/og-image.png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://statuesque-blancmange-6afb8c.netlify.app/blog/01.html" />
+    <link rel="canonical" href="https://statuesque-blancmange-6afb8c.netlify.app/blog/01.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../pages.css" />
+    <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "UIモーション設計の原則 ── なぜアニメーションはユーザーを助けるのか",
+    "description": "適切なアニメーションはUXを向上させ、不適切なアニメーションはユーザーを混乱させる。UIモーションの核心原則を解説。",
+    "author": { "@type": "Person", "name": "rei" },
+    "datePublished": "2026-03-03",
+    "dateModified": "2026-03-03",
+    "publisher": { "@type": "Organization", "name": "anime.js 30アニメーション完全解説" },
+    "url": "https://statuesque-blancmange-6afb8c.netlify.app/blog/01.html"
+  }
+  </script>
+</head>
+
+<body data-theme="dark">
+    <div class="page-wrapper">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+            <a href="../index.html">Home</a>
+            <span>›</span>
+            <a href="index.html">Blog</a>
+            <span>›</span>
+            <span>UIモーション設計の原則</span>
+        </nav>
+
+        <header class="page-header">
+            <div class="page-badge">UIデザイン</div>
+            <h1>UIモーション設計の原則<br>── なぜアニメーションはユーザーを助けるのか</h1>
+            <p class="page-meta">2026年3月3日　／　著者：rei　／　読了時間：約10分</p>
+        </header>
+
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+
+        <article class="article-body">
+            <h2>アニメーションの本質：「伝えるための動き」</h2>
+            <p>Webサイトやアプリにアニメーションを追加するとき、多くの開発者は「かっこよく見せたい」という動機で実装します。しかし、本当に優れたUIアニメーションの目的は「かっこよさ」ではありません。<em>ユーザーが今何が起こっているのかを理解する手助けをすること</em>です。
+            </p>
+            <p>Googleの「Material
+                Design」ガイドラインは、UIモーションに12の原則を定めています。その根底にある思想は「現実世界の物理法則に沿った動きは、人間の脳が最も自然に受け入れられる」というものです。このページでは、特に重要な5つの原則をanime.jsの実装例と共に深掘りします。
+            </p>
+
+            <h2>原則1：Informative（情報を伝える）</h2>
+            <p>アニメーションの最重要の役割は「何かが変わった」をユーザーに伝えることです。例えば、ファイルをゴミ箱にドラッグすると「縮小しながらゴミ箱に消える」アニメーションがつきます。これにより「削除が完了した」という状態変化を、言葉を使わずに視覚的に伝えられます。
+            </p>
+            <pre><code>// ファイル削除の演出（縮小してフェードアウト）
+anime({
+  targets: '#file-item',
+  scale: [1, 0],
+  opacity: [1, 0],
+  translateY: [0, -10],
+  easing: 'easeInCubic',
+  duration: 300,
+  complete: () => document.querySelector('#file-item').remove()
+});</code></pre>
+
+            <h2>原則2：Focused（焦点を当てる）</h2>
+            <p>画面上のすべての要素が同時に動くと、ユーザーはどこを見ればいいかわからなくなります。アニメーションは「今、ここを見て」という視線誘導ツールとして使う必要があります。一度に動かす要素は最小限に。</p>
+            <p>Stagger（遅延表示）はこの原則の完璧な実装例です。リストが上から順番に出現することで、ユーザーの視線は自然に上から下へ流れ、各要素を認識しやすくなります。</p>
+
+            <h2>原則3：Expressive（感情を伝える）</h2>
+            <p>「いいね！」ボタンを押したとき、ただ色が変わるだけより、ハートがピョンと跳ねる方がユーザーの感情に響きます。easeOutElasticによるバウンスは「システムが喜んでいる」という擬人的な印象を与え、ポジティブな感情的フィードバックを返せます。
+            </p>
+            <blockquote>重要：感情的なアニメーションは「感情が伴うアクション」にのみ使うこと。フォームのバリデーションエラーにElasticイージングをつけることは、場の雰囲気を読めていないUI設計です。
+            </blockquote>
+
+            <h2>原則4：Efficient（効率的）</h2>
+            <p>ユーザーはアニメーションを楽しむために来ているのではありません。タスクを完了させに来ています。日常的なUIアクション（ボタン押下・メニュー開閉等）のアニメーションは、200ms〜400msが適正です。それ以上は「待たされている」と感じさせます。
+            </p>
+
+            <h2>原則5：Consistent（一貫性がある）</h2>
+            <p>同じ種類のアクションには同じアニメーションを使いましょう。サイト内で「出現はfadeIn+slideUp、消滅はfadeOut」というルールを一貫して適用すると、ユーザーはアニメーションのパターンを学習し、UIが直感的に感じられます。
+            </p>
+            <p>anime.jsでこれを実現するには、共通のアニメーション関数を定義して全ページで再利用する設計が効果的です。</p>
+            <pre><code>// 共通アニメーション関数の例
+const UI = {
+  enter: (el) => anime({ targets: el, opacity: [0, 1], translateY: [16, 0], duration: 380, easing: 'easeOutCubic' }),
+  leave: (el, cb) => anime({ targets: el, opacity: [1, 0], translateY: [0, -8], duration: 220, easing: 'easeInCubic', complete: cb }),
+  bounce: (el) => anime({ targets: el, scale: [1, 0.85, 1.2, 1], duration: 600, easing: 'easeOutElastic(1, 0.4)' })
+};</code></pre>
+
+            <h2>まとめ：「なぜ動かすか」を最初に考える</h2>
+            <p>アニメーションを実装する前に、毎回この問いを自分に課してください。<em>「このアニメーションはユーザーの理解・操作・感情にどう貢献するのか？」</em></p>
+            <p>答えが出ない場合、そのアニメーションはおそらく不要です。目的のあるモーションだけがUIを豊かにします。</p>
+        </article>
+
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+
+        <div class="author-box">
+            <div class="author-avatar">R</div>
+            <div class="author-info">
+                <h4>rei <span style="font-weight:400;color:var(--text-dimmer);">@rei</span></h4>
+                <p>フロントエンドエンジニア。UIアニメーションとUX設計が専門。<br>最終更新：2026年3月3日</p>
+            </div>
+        </div>
+
+        <div class="related-section">
+            <h3>関連コンテンツ</h3>
+            <div class="related-links">
+                <a href="../guides/timing-easing.html" class="related-link">タイミング・イージングガイド</a>
+                <a href="../guides/ui-patterns.html" class="related-link">UIアニメパターン集</a>
+                <a href="../index.html" class="related-link">ホーム：30デモ一覧</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-logo">anime.js <span>30 Animations</span></div>
+            <nav class="footer-nav">
+                <div class="footer-nav-group">
+                    <span class="group-label">コンテンツ</span>
+                    <a href="../index.html">ホーム（30デモ）</a>
+                    <a href="index.html">Blog</a>
+                    <a href="../guides/timing-easing.html">Guides</a>
+                    <a href="../changelog.html">更新履歴</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">サイト情報</span>
+                    <a href="../about.html">運営者情報</a>
+                    <a href="../contact.html">お問い合わせ</a>
+                    <a href="../sitemap.html">サイトマップ</a>
+                    <a href="../faq.html">FAQ</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">ポリシー</span>
+                    <a href="../terms.html">利用規約</a>
+                    <a href="../disclaimer.html">免責事項</a>
+                    <a href="../cookie.html">Cookie ポリシー</a>
+                    <a href="../advertising.html">広告配信について</a>
+                    <a href="../privacy.html">プライバシーポリシー</a>
+                </div>
+            </nav>
+            <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
+        </div>
+    </footer>
+</body>
+
+</html>

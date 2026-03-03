@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>anime.js 入門 ── インストールから最初のアニメーションまで - anime.js Blog</title>
+    <meta name="description" content="anime.jsをゼロから始める完全ガイド。CDN・npm両対応。基本構文からイージング・タイムライン・スタッガーまでを丁寧に解説します。" />
+    <meta property="og:title" content="anime.js 入門 ── インストールから最初のアニメーションまで" />
+    <meta property="og:description" content="anime.jsをゼロから始める完全ガイド。基本構文からイージング・タイムラインまで丁寧に解説。" />
+    <meta property="og:image" content="https://statuesque-blancmange-6afb8c.netlify.app/og-image.png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://statuesque-blancmange-6afb8c.netlify.app/blog/02.html" />
+    <link rel="canonical" href="https://statuesque-blancmange-6afb8c.netlify.app/blog/02.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../pages.css" />
+    <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "anime.js 入門 ── インストールから最初のアニメーションまで",
+    "description": "anime.jsをゼロから始める完全ガイド。CDN・npm両対応。基本構文からイージング・タイムライン・スタッガーまでを丁寧に解説します。",
+    "author": { "@type": "Person", "name": "rei" },
+    "datePublished": "2026-03-03",
+    "dateModified": "2026-03-03",
+    "publisher": { "@type": "Organization", "name": "anime.js 30アニメーション完全解説" },
+    "url": "https://statuesque-blancmange-6afb8c.netlify.app/blog/02.html"
+  }
+  </script>
+</head>
+
+<body data-theme="dark">
+    <div class="page-wrapper">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+            <a href="../index.html">Home</a>
+            <span>›</span>
+            <a href="index.html">Blog</a>
+            <span>›</span>
+            <span>anime.js 入門</span>
+        </nav>
+
+        <header class="page-header">
+            <div class="page-badge">チュートリアル</div>
+            <h1>anime.js 入門<br>── インストールから最初のアニメーションまで</h1>
+            <p class="page-meta">2026年3月3日　／　著者：rei　／　読了時間：約12分</p>
+        </header>
+
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+
+        <article class="article-body">
+            <h2>anime.jsとは</h2>
+            <p>anime.js（読み：アニメジェーエス）は、Julian
+                Garnierが開発したオープンソースのJavaScriptアニメーションライブラリです。約17KB（minified+gzip）の軽量さで、CSSプロパティ・DOM属性・SVG・JavaScriptオブジェクトすべてを統一されたAPIでアニメーションできます。MITライセンスのため個人・商用問わず無料で利用できます。
+            </p>
+
+            <h2>インストール方法</h2>
+            <h3>方法1：CDN（すぐ試したい場合）</h3>
+            <pre><code>&lt;!-- HTMLのheadまたはbody末尾に追加 --&gt;
+&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"&gt;&lt;/script&gt;</code></pre>
+
+            <h3>方法2：npm（プロジェクトに組み込む場合）</h3>
+            <pre><code># npm
+npm install animejs
+
+# yarn
+yarn add animejs</code></pre>
+            <pre><code>// ESモジュールとしてインポート
+import anime from 'animejs/lib/anime.es.js';
+
+// CommonJSの場合
+const anime = require('animejs');</code></pre>
+
+            <h2>最初のアニメーション</h2>
+            <p>まず最も基本的な例から始めましょう。<code>id="box"</code> の要素を右に200px移動させます。</p>
+            <pre><code>&lt;!-- HTML --&gt;
+&lt;div id="box" style="width:60px;height:60px;background:#6366f1;"&gt;&lt;/div&gt;
+
+&lt;!-- JavaScript --&gt;
+&lt;script&gt;
+anime({
+  targets: '#box',     // アニメーションする要素（CSSセレクタ or DOM要素）
+  translateX: 200,     // 右に200px移動
+  duration: 1000,      // 1000ms（1秒）
+  easing: 'easeInOutQuad', // イージング
+  loop: true,          // 無限ループ
+  direction: 'alternate'   // 往復
+});
+&lt;/script&gt;</code></pre>
+
+            <h2>基本構文の解説</h2>
+            <p><code>anime()</code>関数は一つのオブジェクトを受け取り、アニメーションオブジェクトを返します。主要なオプションは以下の通りです。</p>
+            <ul>
+                <li><strong>targets</strong>：アニメーションする要素。CSSセレクタ文字列・DOM要素・NodeList・配列が使えます</li>
+                <li><strong>プロパティ名</strong>：translateX, opacity, scale など camelCase で指定</li>
+                <li><strong>duration</strong>：ミリ秒（ms）。デフォルト1000ms</li>
+                <li><strong>easing</strong>：イージング関数名。デフォルト <code>'easeOutElastic(1, .5)'</code></li>
+                <li><strong>delay</strong>：アニメーション開始の遅延（ms）</li>
+                <li><strong>loop</strong>：true で無限ループ、数値で繰り返し回数</li>
+                <li><strong>direction</strong>：<code>'normal'</code> / <code>'reverse'</code> / <code>'alternate'</code>
+                </li>
+            </ul>
+
+            <h2>複数プロパティのアニメーション</h2>
+            <p>複数のCSSプロパティを同時に変化させられます。</p>
+            <pre><code>anime({
+  targets: '.card',
+  translateY: [30, 0],   // 下から上へ（from値, to値）
+  opacity: [0, 1],       // 透明から不透明へ
+  scale: [0.95, 1],      // 少し拡大
+  duration: 600,
+  easing: 'easeOutCubic'
+});</code></pre>
+
+            <h2>Stagger（複数要素への遅延）</h2>
+            <p>複数の要素に対して自動的に計算した遅延を付与します。</p>
+            <pre><code>anime({
+  targets: '.list-item',
+  opacity: [0, 1],
+  translateX: [-20, 0],
+  delay: anime.stagger(100),  // 各要素100ms刻みで遅延
+  easing: 'easeOutCubic',
+  duration: 400
+});</code></pre>
+
+            <h2>Timeline（複数アニメーションの連携）</h2>
+            <p>複数のアニメーションを順番に・または重ねて実行します。</p>
+            <pre><code>const tl = anime.timeline({ easing: 'easeOutCubic' });
+
+tl.add({ targets: '#logo', opacity: [0, 1], scale: [0.5, 1], duration: 400 })
+  .add({ targets: '#headline', translateY: [20, 0], opacity: [0, 1], duration: 400 }, '-=200') // 200ms前から開始
+  .add({ targets: '#cta', scale: [0.9, 1], opacity: [0, 1], duration: 300 }, '-=150');</code></pre>
+
+            <h2>コールバック</h2>
+            <pre><code>anime({
+  targets: '#el',
+  translateX: 200,
+  duration: 1000,
+  begin: (anim) => console.log('アニメーション開始', anim),
+  update: (anim) => console.log('progress:', anim.progress + '%'),
+  complete: (anim) => console.log('アニメーション完了！')
+});</code></pre>
+
+            <h2>次のステップ</h2>
+            <p>基本を理解したら、本サイトの<a
+                    href="../index.html">30デモページ</a>で各アニメーションのコードを確認しながら実践的な実装を学ぶことをお勧めします。各デモにはコード・推奨仕様・ユースケース・Reduced
+                Motion対応情報が記載されています。</p>
+        </article>
+
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+
+        <div class="author-box">
+            <div class="author-avatar">R</div>
+            <div class="author-info">
+                <h4>rei</h4>
+                <p>フロントエンドエンジニア。最終更新：2026年3月3日</p>
+            </div>
+        </div>
+
+        <div class="related-section">
+            <h3>関連コンテンツ</h3>
+            <div class="related-links">
+                <a href="../guides/timing-easing.html" class="related-link">タイミング・イージングガイド</a>
+                <a href="../guides/common-mistakes.html" class="related-link">よくあるミスと対策</a>
+                <a href="../index.html" class="related-link">ホーム：30デモ一覧</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-logo">anime.js <span>30 Animations</span></div>
+            <nav class="footer-nav">
+                <div class="footer-nav-group">
+                    <span class="group-label">コンテンツ</span>
+                    <a href="../index.html">ホーム（30デモ）</a>
+                    <a href="index.html">Blog</a>
+                    <a href="../guides/timing-easing.html">Guides</a>
+                    <a href="../changelog.html">更新履歴</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">サイト情報</span>
+                    <a href="../about.html">運営者情報</a>
+                    <a href="../contact.html">お問い合わせ</a>
+                    <a href="../sitemap.html">サイトマップ</a>
+                    <a href="../faq.html">FAQ</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">ポリシー</span>
+                    <a href="../terms.html">利用規約</a>
+                    <a href="../disclaimer.html">免責事項</a>
+                    <a href="../cookie.html">Cookie ポリシー</a>
+                    <a href="../advertising.html">広告配信について</a>
+                    <a href="../privacy.html">プライバシーポリシー</a>
+                </div>
+            </nav>
+            <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
+        </div>
+    </footer>
+</body>
+
+</html>

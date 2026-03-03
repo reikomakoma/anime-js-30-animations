@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>UIアニメーションパターン集 - anime.js 30アニメーション完全解説</title>
+    <meta name="description" content="よく使われるUIアニメーションパターンのanime.js実装集。モーダル・トースト・ドロワー・スケルトン・カウントアップなど実践的なレシピ集。" />
+    <meta property="og:title" content="UIアニメーションパターン集 | anime.js Guides" />
+    <meta property="og:description" content="モーダル・トースト・ドロワー・スケルトンUIなど実務頻出パターンのanime.js実装レシピ集。" />
+    <meta property="og:image" content="https://statuesque-blancmange-6afb8c.netlify.app/og-image.png" />
+    <meta property="og:url" content="https://statuesque-blancmange-6afb8c.netlify.app/guides/ui-patterns.html" />
+    <link rel="canonical" href="https://statuesque-blancmange-6afb8c.netlify.app/guides/ui-patterns.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../pages.css" />
+</head>
+
+<body data-theme="dark">
+    <div class="page-wrapper">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+            <a href="../index.html">Home</a>
+            <span>›</span>
+            <span>Guides</span>
+            <span>›</span>
+            <span>UIアニメーションパターン集</span>
+        </nav>
+
+        <header class="page-header">
+            <div class="page-badge">Guide</div>
+            <h1>UIアニメーション<br>パターン集</h1>
+            <p class="page-meta">最終更新：2026年3月3日　／　読了時間：約10分</p>
+        </header>
+
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+
+        <article class="article-body">
+            <h2>パターン1：モーダルダイアログ</h2>
+            <p>ユーザーの操作を中断して確認を求める。出現は速く・閉じるは少し速めで。</p>
+            <pre><code>// 表示
+function openModal(overlay, box) {
+  overlay.style.display = 'flex';
+  anime({ targets: overlay, opacity: [0, 1], duration: 200, easing: 'linear' });
+  anime({ targets: box, scale: [0.85, 1], opacity: [0, 1], duration: 350, easing: 'easeOutBack' });
+}
+
+// 閉じる
+function closeModal(overlay, box) {
+  anime({
+    targets: [box, overlay],
+    opacity: [1, 0],
+    scale: { value: [1, 0.92], targets: box },
+    duration: 250,
+    easing: 'easeInCubic',
+    complete: () => overlay.style.display = 'none'
+  });
+}</code></pre>
+
+            <h2>パターン2：トースト通知</h2>
+            <p>画面端から素早く出現し、一定時間後に自動消去。ユーザーを待たせない速さが重要。</p>
+            <pre><code>function showToast(message, duration = 3000) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  // 出現（easeOutExpoで速く・鋭く）
+  anime({ targets: toast, translateX: [100, 0], opacity: [0, 1], duration: 400, easing: 'easeOutExpo' });
+
+  // 自動消去
+  setTimeout(() => {
+    anime({
+      targets: toast,
+      translateX: [0, 100],
+      opacity: [1, 0],
+      duration: 300,
+      easing: 'easeInCubic',
+      complete: () => toast.remove()
+    });
+  }, duration);
+}</code></pre>
+
+            <h2>パターン3：ドロワー（サイドメニュー）</h2>
+            <p>モバイルナビゲーション等。translateXでDOM外から滑り込ませる。</p>
+            <pre><code>let drawerOpen = false;
+
+function toggleDrawer(drawer, overlay) {
+  drawerOpen = !drawerOpen;
+  if (drawerOpen) {
+    overlay.style.display = 'block';
+    anime([
+      { targets: overlay, opacity: [0, 1], duration: 200, easing: 'linear' },
+      { targets: drawer, translateX: ['-100%', '0%'], duration: 350, easing: 'easeOutCubic' }
+    ]);
+  } else {
+    anime({
+      targets: [drawer, overlay],
+      translateX: { value: '-100%', targets: drawer },
+      opacity: { value: 0, targets: overlay },
+      duration: 280,
+      easing: 'easeInCubic',
+      complete: () => overlay.style.display = 'none'
+    });
+  }
+  drawerOpen = !drawerOpen; // 正確なフラグ管理
+}</code></pre>
+
+            <h2>パターン4：スケルトンUI（ローディング）</h2>
+            <p>データ読み込み中のプレースホルダー。opacityをloopで脈動させる。</p>
+            <pre><code>function startSkeletonPulse(skeletonEls) {
+  return anime({
+    targets: skeletonEls,
+    opacity: [0.3, 1],
+    easing: 'easeInOutSine',
+    duration: 800,
+    loop: true,
+    direction: 'alternate',
+    delay: anime.stagger(80)
+  });
+}
+
+// データ取得完了後
+async function loadAndRender(container) {
+  const skeletons = container.querySelectorAll('.skeleton');
+  const pulse = startSkeletonPulse(skeletons);
+
+  const data = await fetchData();
+  pulse.pause();
+  renderContent(container, data);
+
+  // コンテンツを滑らかに表示
+  anime({ targets: container.querySelectorAll('.content-item'), opacity: [0, 1], translateY: [10, 0], delay: anime.stagger(60) });
+}</code></pre>
+
+            <h2>パターン5：スクロール連動フェードイン</h2>
+            <p>Intersection Observerと組み合わせて、要素が画面内に入ったときにアニメーション。</p>
+            <pre><code>const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    anime({
+      targets: el,
+      opacity: [0, 1],
+      translateY: reduced ? 0 : [30, 0],
+      duration: reduced ? 200 : 600,
+      easing: 'easeOutCubic'
+    });
+    observer.unobserve(el);
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('[data-animate]').forEach(el => {
+  el.style.opacity = '0';
+  observer.observe(el);
+});</code></pre>
+
+            <h2>パターン6：タイムライン（LP ヒーロー入場）</h2>
+            <p>ランディングページのファーストビュー。要素を「背景→見出し→説明→CTA」の順で演出。</p>
+            <pre><code>anime.timeline({ easing: 'easeOutCubic' })
+  .add({ targets: '.hero-bg', opacity: [0, 1], duration: 600 })
+  .add({ targets: '.hero-headline', translateY: [30, 0], opacity: [0, 1], duration: 500 }, '-=200')
+  .add({ targets: '.hero-desc', translateY: [20, 0], opacity: [0, 1], duration: 400 }, '-=200')
+  .add({ targets: '.hero-cta', scale: [0.9, 1], opacity: [0, 1], duration: 350, easing: 'easeOutBack' }, '-=150');</code></pre>
+        </article>
+
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+
+        <div class="author-box">
+            <div class="author-avatar">R</div>
+            <div class="author-info">
+                <h4>rei</h4>
+                <p>フロントエンドエンジニア。最終更新：2026年3月3日</p>
+            </div>
+        </div>
+
+        <div class="related-section">
+            <h3>関連コンテンツ</h3>
+            <div class="related-links">
+                <a href="timing-easing.html" class="related-link">タイミング・イージングガイド</a>
+                <a href="common-mistakes.html" class="related-link">よくあるミスと対策</a>
+                <a href="../index.html?cat=ui" class="related-link">ホーム：UIパーツデモ</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-logo">anime.js <span>30 Animations</span></div>
+            <nav class="footer-nav">
+                <div class="footer-nav-group">
+                    <span class="group-label">コンテンツ</span>
+                    <a href="../index.html">ホーム（30デモ）</a>
+                    <a href="../blog/index.html">Blog</a>
+                    <a href="timing-easing.html">Guides</a>
+                    <a href="../changelog.html">更新履歴</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">サイト情報</span>
+                    <a href="../about.html">運営者情報</a>
+                    <a href="../contact.html">お問い合わせ</a>
+                    <a href="../sitemap.html">サイトマップ</a>
+                    <a href="../faq.html">FAQ</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">ポリシー</span>
+                    <a href="../terms.html">利用規約</a>
+                    <a href="../disclaimer.html">免責事項</a>
+                    <a href="../cookie.html">Cookie ポリシー</a>
+                    <a href="../advertising.html">広告配信について</a>
+                    <a href="../privacy.html">プライバシーポリシー</a>
+                </div>
+            </nav>
+            <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
+        </div>
+    </footer>
+</body>
+
+</html>

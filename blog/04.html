@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>モーション酔いを防ぐWebデザイン - anime.js Blog</title>
+    <meta name="description"
+        content="前庭機能障害や偏頭痛を持つユーザーへの配慮。モーション酔いを引き起こすアニメーションのパターンと、prefers-reduced-motionを使った安全な代替策を解説。" />
+    <meta property="og:title" content="モーション酔いを防ぐWebデザイン ── prefers-reduced-motionの実践" />
+    <meta property="og:description" content="モーション酔いを引き起こすパターンと安全な代替策。prefers-reduced-motion実装ガイド。" />
+    <meta property="og:image" content="https://statuesque-blancmange-6afb8c.netlify.app/og-image.png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://statuesque-blancmange-6afb8c.netlify.app/blog/04.html" />
+    <link rel="canonical" href="https://statuesque-blancmange-6afb8c.netlify.app/blog/04.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../pages.css" />
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"モーション酔いを防ぐWebデザイン","author":{"@type":"Person","name":"rei"},"datePublished":"2026-03-03","dateModified":"2026-03-03","publisher":{"@type":"Organization","name":"anime.js 30アニメーション完全解説"},"url":"https://statuesque-blancmange-6afb8c.netlify.app/blog/04.html"}</script>
+</head>
+
+<body data-theme="dark">
+    <div class="page-wrapper">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+            <a href="../index.html">Home</a><span>›</span>
+            <a href="index.html">Blog</a><span>›</span>
+            <span>モーション酔いを防ぐWebデザイン</span>
+        </nav>
+        <header class="page-header">
+            <div class="page-badge">アクセシビリティ</div>
+            <h1>モーション酔いを防ぐWebデザイン<br>── prefers-reduced-motionの実践</h1>
+            <p class="page-meta">2026年3月3日　／　著者：rei　／　読了時間：約8分</p>
+        </header>
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+        <article class="article-body">
+            <h2>モーション酔いとは</h2>
+            <p>「モーション酔い（motion
+                sickness）」は、視覚的な動きと前庭感覚（バランス感覚）の不一致から生じる不快感です。車酔いと同じメカニズムが、画面上の激しいアニメーションによっても引き起こされます。前庭機能障害（vestibular
+                disorder）を持つ人口は成人の約35%と推計されており、Webサイトのアクセシビリティに深刻な影響を与えます。</p>
+            <p>軽いケースでは「なんか見てて疲れる」「ちょっと気持ち悪い」程度ですが、重篤なケースでは頭痛・嘔吐感・数時間続く不快感を引き起こすこともあります。</p>
+
+            <h2>モーション酔いを引き起こすパターン</h2>
+
+            <h3>パターン1：パラレックス効果</h3>
+            <p>スクロールに合わせて背景と前景が異なる速度で動くパラレックス効果は、最も酔いを引き起こしやすいデザインの一つです。視覚的には「奥行き感がかっこいい」ですが、前庭感覚との不一致が強烈です。</p>
+
+            <h3>パターン2：大きな平行移動</h3>
+            <p>translateX/Yで画面幅に近い大きな距離を移動するアニメーションは危険です。特に水平方向の大移動は前庭感覚を強く刺激します。移動距離は最大でも画面幅の25%以下を目安に。</p>
+
+            <h3>パターン3：ズーム（大きなscale変化）</h3>
+            <p>0から1など大きなscaleアニメーションは、まるで「ズームイン」されるような強い視覚刺激を与えます。0.9〜1.0などの小さな変化に留めるか、Reduced Motion時はゼロにしましょう。</p>
+
+            <h3>パターン4：継続的なループアニメーション</h3>
+            <p>ループで回転し続ける要素・揺れ続ける要素は、視野の中で常に動き続けるため蓄積疲労を引き起こします。必要な場合のみ使い、ユーザーが止められる手段（ホバーでpause等）を提供しましょう。</p>
+
+            <h3>パターン5：フラッシュ・点滅</h3>
+            <p>1秒間に3回以上の点滅は光感受性てんかんを引き起こす可能性があり、WCAG 2.1で明確に禁止されています（Success Criterion 2.3.1）。</p>
+
+            <h2>prefers-reduced-motionを使った対策</h2>
+            <p>OS設定「視差効果を減らす（iOS/macOS）」「Windowsのアニメーションを無効にする」などをONにするユーザーに対して、安全なアニメーションを提供します。</p>
+            <pre><code>// anime.jsでのReducedMotion対応パターン
+function safeAnime(opts) {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduced) return anime(opts);
+
+  // 移動アニメーションをゼロ化
+  const safeOpts = { ...opts };
+  if (safeOpts.translateX) safeOpts.translateX = Array.isArray(safeOpts.translateX) ? [0, 0] : 0;
+  if (safeOpts.translateY) safeOpts.translateY = Array.isArray(safeOpts.translateY) ? [0, 0] : 0;
+  if (safeOpts.rotate) delete safeOpts.rotate;
+  if (safeOpts.scale) safeOpts.scale = Array.isArray(safeOpts.scale) ? [1, 1] : 1;
+  safeOpts.duration = Math.min(safeOpts.duration || 400, 200);
+  return anime(safeOpts);
+}</code></pre>
+
+            <h2>何は残して、何は消すか</h2>
+            <p><strong>消すべきもの</strong>：translateX/Y（大きな移動）、rotate（連続回転）、大きなscale変化、パラレックス、3Dパース</p>
+            <p><strong>残してよいもの</strong>：opacity（フェード）、小さなscale（0.95〜1.0）、背景色変化、アンダーライン等のCSS装飾変化</p>
+
+            <h2>ユーザーへのコントロール提供</h2>
+            <p>OS設定に依存するだけでなく、サイト内に「アニメーションを停止する」ボタンを設置することも選択肢の一つです。<code>localStorage</code>に保存してリロード後も設定を維持できます。</p>
+            <pre><code>// アニメーション停止ボタンの実装例
+const motionToggle = document.querySelector('#motionToggle');
+let motionDisabled = localStorage.getItem('motionDisabled') === 'true';
+
+if (motionDisabled) document.documentElement.classList.add('no-motion');
+
+motionToggle.addEventListener('click', () => {
+  motionDisabled = !motionDisabled;
+  localStorage.setItem('motionDisabled', motionDisabled);
+  document.documentElement.classList.toggle('no-motion', motionDisabled);
+});</code></pre>
+        </article>
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+        <div class="author-box">
+            <div class="author-avatar">R</div>
+            <div class="author-info">
+                <h4>rei</h4>
+                <p>フロントエンドエンジニア。最終更新：2026年3月3日</p>
+            </div>
+        </div>
+        <div class="related-section">
+            <h3>関連コンテンツ</h3>
+            <div class="related-links">
+                <a href="../guides/reduced-motion.html" class="related-link">モーション配慮設計ガイド</a>
+                <a href="06.html" class="related-link">アクセシブルなアニメの作り方</a>
+                <a href="../index.html" class="related-link">ホーム：30デモ一覧</a>
+            </div>
+        </div>
+    </div>
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-logo">anime.js <span>30 Animations</span></div>
+            <nav class="footer-nav">
+                <div class="footer-nav-group"><span class="group-label">コンテンツ</span><a
+                        href="../index.html">ホーム（30デモ）</a><a href="index.html">Blog</a><a
+                        href="../guides/timing-easing.html">Guides</a><a href="../changelog.html">更新履歴</a></div>
+                <div class="footer-nav-group"><span class="group-label">サイト情報</span><a href="../about.html">運営者情報</a><a
+                        href="../contact.html">お問い合わせ</a><a href="../sitemap.html">サイトマップ</a><a
+                        href="../faq.html">FAQ</a></div>
+                <div class="footer-nav-group"><span class="group-label">ポリシー</span><a href="../terms.html">利用規約</a><a
+                        href="../disclaimer.html">免責事項</a><a href="../cookie.html">Cookie ポリシー</a><a
+                        href="../advertising.html">広告配信について</a><a href="../privacy.html">プライバシーポリシー</a></div>
+            </nav>
+            <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
+        </div>
+    </footer>
+</body>
+
+</html>

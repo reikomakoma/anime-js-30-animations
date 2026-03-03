@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>よくある質問（FAQ） - anime.js 30アニメーション完全解説</title>
+    <meta name="description" content="anime.jsとこのサイトについてのよくある質問と回答。アニメーションの実装、パフォーマンス、ブラウザ対応などを解説します。" />
+    <meta property="og:title" content="よくある質問（FAQ） - anime.js 30アニメーション完全解説" />
+    <meta property="og:description" content="anime.jsに関するよくある疑問に答えます。実装方法、パフォーマンス、対応ブラウザなど。" />
+    <meta property="og:image" content="https://statuesque-blancmange-6afb8c.netlify.app/og-image.png" />
+    <meta property="og:url" content="https://statuesque-blancmange-6afb8c.netlify.app/faq" />
+    <link rel="canonical" href="https://statuesque-blancmange-6afb8c.netlify.app/faq" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../pages.css" />
+    <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "anime.jsは無料で使えますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、anime.jsはMITライセンスのオープンソースライブラリです。個人・商用を問わず無料でご利用いただけます。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "このサイトのコードを自分のプロジェクトで使えますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "コードスニペット（サンプルコード）については、個人・商用を問わず自由にご利用いただけます。記事の文章の無断転載はご遠慮ください。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "anime.jsはReactやVueで使えますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、anime.jsはフレームワーク非依存のライブラリです。React、Vue、Svelte、Angular等の任意のフレームワークと組み合わせて使用できます。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "モバイルブラウザでも動作しますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、anime.jsはiOS Safari・Android Chromeを含む主要なモバイルブラウザで動作します。ただし、パフォーマンスはデバイスのスペックに依存します。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "prefers-reduced-motionへの対応はどうすればいいですか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "window.matchMedia('(prefers-reduced-motion: reduce)').matchesでユーザーの設定を確認し、trueの場合はアニメーションをスキップするかduration/distanceを最小化してください。詳しくはGuides「モーション配慮設計」を参照してください。"
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+
+<body data-theme="dark">
+    <div class="page-wrapper">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+            <a href="../index.html">Home</a>
+            <span>›</span>
+            <span>FAQ</span>
+        </nav>
+
+        <header class="page-header">
+            <div class="page-badge">FAQ</div>
+            <h1>よくある質問</h1>
+            <p class="page-meta">anime.jsとこのサイトについてよく寄せられる質問をまとめました</p>
+        </header>
+
+        <section aria-label="FAQ一覧">
+            <h2
+                style="font-size:1rem;color:var(--text-dimmer);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px;">
+                anime.js基本</h2>
+            <ul class="faq-list" id="faqList1">
+
+                <li class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        anime.jsは無料で使えますか？
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-a">
+                        はい、anime.jsはMITライセンスで公開されているオープンソースのJavaScriptライブラリです。個人利用・商用利用を問わず、完全無料でご利用いただけます。npm（<code>npm install animejs</code>）やCDN経由で簡単に導入できます。
+                    </div>
+                </li>
+
+                <li class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        anime.jsのバージョン3.xと4.xは何が違いますか？
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-a">
+                        本サイトはanime.js
+                        3.x系を対象としています。3.xは現在最も広く使われており、安定したAPIを提供しています。4.xは開発中のメジャーアップデートで、より型安全なAPIが予定されていますが、3.xとの互換性はないため移行が必要になります。本サイトのコードは3.x向けです。
+                    </div>
+                </li>
+
+                <li class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        anime.jsはReact / Vue / Svelteで使えますか？
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-a">
+                        はい、anime.jsはフレームワーク非依存のライブラリです。ReactではuseEffect + useRef、VueではonMounted +
+                        templateRef、SvelteではonMount +
+                        bind:thisを使ってDOM参照を取得し、anime()に渡すことで利用できます。ただし、DOMをanime.jsが直接操作するため、Reactの仮想DOMとの競合に注意が必要です。コンポーネントのアンマウント時にアニメーションを停止・クリーンアップすることを忘れずに。
+                    </div>
+                </li>
+
+                <li class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        CSSアニメーションやGSAPと比べた場合のanime.jsのメリットは？
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-a">
+                        <strong>CSS
+                            Transitionと比べたメリット：</strong>複数プロパティの連携・タイムライン管理・コールバック・SVGアニメーションがJavaScriptで一元管理できます。<br>
+                        <strong>GSAPと比べたメリット：</strong>ファイルサイズが小さく（約17KB
+                        min+gzip）、シンプルなAPIで学習コストが低いです。また完全無料で商用利用できます（GSAPは一部機能が有料）。<br>
+                        プロジェクトの規模が大きい場合や高度な機能（ScrollTrigger等）が必要な場合はGSAPが優位ですが、個人・中小規模のプロジェクトではanime.jsが最適解になることが多いです。
+                    </div>
+                </li>
+
+                <li class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        モバイル・スマートフォンでも正常に動作しますか？
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-a">
+                        はい、anime.jsはiOS Safari・Android
+                        Chromeを含む主要なモバイルブラウザで動作します。本サイトのデモもモバイルで閲覧可能です。ただし、低スペックなデバイスでは複雑なアニメーション（特に多数の要素・長いスタッガー）が重くなる場合があります。<a
+                            href="../guides/performance.html">パフォーマンス最適化ガイド</a>も参考にしてください。
+                    </div>
+                </li>
+            </ul>
+
+            <h2
+                style="font-size:1rem;color:var(--text-dimmer);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin:36px 0 20px;">
+                実装・コード</h2>
+            <ul class="faq-list">
+
+                <li class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        アニメーションが動かない場合のチェックリストは？
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-a">
+                        まず以下を確認してください。① anime.jsが正しく読み込まれているか（<code>typeof anime !== 'undefined'</code>をコンソールで確認）、②
+                        ターゲットのセレクタが正しいか（<code>document.querySelector(targets)</code>でnullでないか）、③
+                        アニメーションするプロパティ名が正しいか（camelCaseで指定）、④ durationが設定されているか（デフォルト1000ms）、⑤
+                        <code>console.log(anime({...}))</code>でアニメーションオブジェクトが返されているか。詳しくは<a
+                            href="../guides/common-mistakes.html">よくあるミスガイド</a>を参照してください。
+                    </div>
+                </li>
+
+                <li class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        prefers-reduced-motionへの対応はどうすればよいですか？
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-a">
+                        <code>window.matchMedia('(prefers-reduced-motion: reduce)').matches</code>でユーザーの設定を確認できます。trueの場合は、移動（translateX/Y）をゼロにし、フェード（opacity）のみに簡略化するのが推奨です。スタッガーも最小化または無効化してください。詳しくは<a
+                            href="../guides/reduced-motion.html">モーション配慮設計ガイド</a>をご覧ください。
+                    </div>
+                </li>
+
+                <li class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        複数のアニメーションを順番に実行するにはどうすればいいですか？
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-a">
+                        <code>anime.timeline()</code>を使うのが最もスマートな方法です。<code>.add()</code>でアニメーションを追加し、オフセット（<code>'-=300'</code>）で重ね合わせも制御できます。単純なシーケンスであれば<code>complete</code>コールバックで次のアニメーションを呼び出す方法も使えます。デモ
+                        #17（タイムライン制御）で実例を確認できます。
+                    </div>
+                </li>
+            </ul>
+
+            <h2
+                style="font-size:1rem;color:var(--text-dimmer);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin:36px 0 20px;">
+                このサイトについて</h2>
+            <ul class="faq-list">
+
+                <li class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        このサイトのコードを自分のプロジェクトで使えますか？
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-a">
+                        コードスニペット（サンプルコード）については、個人・商用を問わず自由にご利用・改変いただけます（MIT相当のライセンス）。クレジット表記は任意です。ただし、記事の文章・解説文の無断転載はご遠慮ください。引用する場合は出典として本サイトへのリンクをお願いします。
+                    </div>
+                </li>
+
+                <li class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        誤情報・バグを見つけた場合はどうすればいいですか？
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-a">
+                        <a href="../contact.html">お問い合わせフォーム</a>からご連絡いただければ幸いです。内容を確認し、迅速に修正対応いたします。また、<a
+                            href="https://github.com/reikomakoma" target="_blank"
+                            rel="noopener">GitHub</a>でのIssue報告も歓迎します。
+                    </div>
+                </li>
+
+                <li class="faq-item">
+                    <div class="faq-q" onclick="toggleFaq(this)">
+                        新しいデモやコンテンツのリクエストはできますか？
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-a">
+                        はい、ぜひ<a
+                            href="../contact.html">お問い合わせ</a>からリクエストをお知らせください。「こんなアニメーションの実装方法が知りたい」「このユースケースのデモが欲しい」などのご要望を参考に、コンテンツを改善・拡充していきます。
+                    </div>
+                </li>
+            </ul>
+        </section>
+    </div>
+
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-logo">anime.js <span>30 Animations</span></div>
+            <nav class="footer-nav" aria-label="フッターナビゲーション">
+                <div class="footer-nav-group">
+                    <span class="group-label">コンテンツ</span>
+                    <a href="../index.html">ホーム（30デモ）</a>
+                    <a href="../blog/index.html">Blog</a>
+                    <a href="../guides/timing-easing.html">Guides</a>
+                    <a href="../changelog.html">更新履歴</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">サイト情報</span>
+                    <a href="../about.html">運営者情報</a>
+                    <a href="../contact.html">お問い合わせ</a>
+                    <a href="../sitemap.html">サイトマップ</a>
+                    <a href="faq.html">FAQ</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">ポリシー</span>
+                    <a href="terms.html">利用規約</a>
+                    <a href="disclaimer.html">免責事項</a>
+                    <a href="cookie.html">Cookie ポリシー</a>
+                    <a href="advertising.html">広告配信について</a>
+                    <a href="../privacy.html">プライバシーポリシー</a>
+                </div>
+            </nav>
+            <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleFaq(el) {
+            const item = el.parentElement;
+            const isOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+            if (!isOpen) item.classList.add('open');
+        }
+    </script>
+</body>
+
+</html>

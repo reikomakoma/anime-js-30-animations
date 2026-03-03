@@ -4,7 +4,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>anime.js 30アニメーション完全解説</title>
+  <title>anime.js 30アニメーション完全解説 ── インタラクティブデモで学ぶ30種類</title>
+  <meta name="description" content="anime.jsの30種類のアニメーションをインタラクティブなデモと解説で体験。基本変形・イージング・タイミング・SVG・テキストアニメ・UIパーツを網羅。" />
+  <meta property="og:title" content="anime.js 30アニメーション完全解説" />
+  <meta property="og:description" content="anime.jsの全30種アニメーションをインタラクティブデモで解説。動くコードで即使える実践ガイド。" />
+  <meta property="og:image" content="https://statuesque-blancmange-6afb8c.netlify.app/og-image.png" />
+  <meta property="og:url" content="https://statuesque-blancmange-6afb8c.netlify.app/" />
+  <meta property="og:type" content="website" />
+  <link rel="canonical" href="https://statuesque-blancmange-6afb8c.netlify.app/" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
@@ -12,6 +19,17 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="footer.css" />
+  <link rel="stylesheet" href="pages.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "anime.js 30アニメーション完全解説",
+    "url": "https://statuesque-blancmange-6afb8c.netlify.app",
+    "description": "anime.jsの30種類のアニメーションをインタラクティブなデモと解説で体験できるサイト",
+    "author": { "@type": "Person", "name": "rei" }
+  }
+  </script>
 </head>
 
 <body data-theme="dark">
@@ -82,14 +100,75 @@
     <main class="main">
       <div class="grid" id="grid"></div>
     </main>
-    <footer class="footer">
-      <div class="footer-content">
-        <p>&copy; 2026 anime.js 30アニメーション完全解説</p>
-        <div class="footer-links">
-          <a href="about.html">運営者情報</a>
-          <a href="privacy.html">プライバシーポリシー</a>
-          <a href="contact.html">お問い合わせ</a>
-        </div>
+    <!-- コンテンツ導線セクション -->
+    <section class="content-links-section" style="padding:48px 24px 0;max-width:960px;margin:0 auto;">
+      <h2
+        style="font-size:0.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mute,#64748b);text-align:center;margin-bottom:24px;">
+        さらに深く学ぶ</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;">
+        <a href="guides/timing-easing.html"
+          style="display:block;padding:20px 22px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:14px;text-decoration:none;transition:border-color .25s,transform .25s;"
+          onmouseover="this.style.borderColor='rgba(99,102,241,0.5)';this.style.transform='translateY(-3px)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.transform='none'">
+          <div style="font-size:1.5rem;margin-bottom:8px;">⏱️</div>
+          <div style="font-size:.9rem;font-weight:700;color:#f1f5f9;margin-bottom:4px;">Guides</div>
+          <div style="font-size:.78rem;color:#64748b;">5本の専門ガイド記事</div>
+        </a>
+        <a href="blog/index.html"
+          style="display:block;padding:20px 22px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:14px;text-decoration:none;transition:border-color .25s,transform .25s;"
+          onmouseover="this.style.borderColor='rgba(99,102,241,0.5)';this.style.transform='translateY(-3px)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.transform='none'">
+          <div style="font-size:1.5rem;margin-bottom:8px;">📚</div>
+          <div style="font-size:.9rem;font-weight:700;color:#f1f5f9;margin-bottom:4px;">Blog</div>
+          <div style="font-size:.78rem;color:#64748b;">UIモーション・UX設計記事8本</div>
+        </a>
+        <a href="changelog.html"
+          style="display:block;padding:20px 22px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:14px;text-decoration:none;transition:border-color .25s,transform .25s;"
+          onmouseover="this.style.borderColor='rgba(99,102,241,0.5)';this.style.transform='translateY(-3px)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.transform='none'">
+          <div style="font-size:1.5rem;margin-bottom:8px;">📝</div>
+          <div style="font-size:.9rem;font-weight:700;color:#f1f5f9;margin-bottom:4px;">更新履歴</div>
+          <div style="font-size:.78rem;color:#64748b;">最新の追加・変更情報</div>
+        </a>
+        <a href="faq.html"
+          style="display:block;padding:20px 22px;background:rgba(30,41,59,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:14px;text-decoration:none;transition:border-color .25s,transform .25s;"
+          onmouseover="this.style.borderColor='rgba(99,102,241,0.5)';this.style.transform='translateY(-3px)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.transform='none'">
+          <div style="font-size:1.5rem;margin-bottom:8px;">❓</div>
+          <div style="font-size:.9rem;font-weight:700;color:#f1f5f9;margin-bottom:4px;">FAQ</div>
+          <div style="font-size:.78rem;color:#64748b;">よくある質問と回答</div>
+        </a>
+      </div>
+    </section>
+
+    <footer class="site-footer" style="margin-top:60px;">
+      <div class="site-footer-inner">
+        <div class="footer-logo">anime.js <span>30 Animations</span></div>
+        <nav class="footer-nav" aria-label="フッターナビゲーション">
+          <div class="footer-nav-group">
+            <span class="group-label">コンテンツ</span>
+            <a href="index.html">ホーム（30デモ）</a>
+            <a href="blog/index.html">Blog</a>
+            <a href="guides/timing-easing.html">Guides</a>
+            <a href="changelog.html">更新履歴</a>
+          </div>
+          <div class="footer-nav-group">
+            <span class="group-label">サイト情報</span>
+            <a href="about.html">運営者情報</a>
+            <a href="contact.html">お問い合わせ</a>
+            <a href="sitemap.html">サイトマップ</a>
+            <a href="faq.html">FAQ</a>
+          </div>
+          <div class="footer-nav-group">
+            <span class="group-label">ポリシー</span>
+            <a href="terms.html">利用規約</a>
+            <a href="disclaimer.html">免責事項</a>
+            <a href="cookie.html">Cookie ポリシー</a>
+            <a href="advertising.html">広告配信について</a>
+            <a href="privacy.html">プライバシーポリシー</a>
+          </div>
+        </nav>
+        <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
       </div>
     </footer>
     <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="トップへ戻る">

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>タイミングとイージング完全ガイド - anime.js 30アニメーション完全解説</title>
+    <meta name="description"
+        content="anime.jsのduration（持続時間）・delay（遅延）・easing（イージング）の正しい使い方を徹底解説。UIアニメーションの品質を左右する最重要パラメータを理解しよう。" />
+    <meta property="og:title" content="タイミングとイージング完全ガイド | anime.js Guides" />
+    <meta property="og:description"
+        content="duration・delay・easingの選び方とUI品質への影響を解説。easeInOut系・elastic・spring・bounceの使い分けを学ぶ。" />
+    <meta property="og:image" content="https://statuesque-blancmange-6afb8c.netlify.app/og-image.png" />
+    <meta property="og:url" content="https://statuesque-blancmange-6afb8c.netlify.app/guides/timing-easing.html" />
+    <link rel="canonical" href="https://statuesque-blancmange-6afb8c.netlify.app/guides/timing-easing.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../pages.css" />
+</head>
+
+<body data-theme="dark">
+    <div class="page-wrapper">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+            <a href="../index.html">Home</a>
+            <span>›</span>
+            <span>Guides</span>
+            <span>›</span>
+            <span>タイミングとイージング</span>
+        </nav>
+
+        <header class="page-header">
+            <div class="page-badge">Guide</div>
+            <h1>タイミングとイージング完全ガイド</h1>
+            <p class="page-meta">最終更新：2026年3月3日　／　読了時間：約8分</p>
+        </header>
+
+        <!-- 広告枠1（H2前） -->
+        <div class="ad-slot" aria-label="広告枠">
+            <span class="ad-slot-label">Advertisement</span>
+        </div>
+
+        <article class="article-body">
+            <h2>イージングとは何か</h2>
+            <p>アニメーションにおける「イージング（easing）」とは、アニメーション開始から終了にかけての<strong>速度変化のパターン</strong>のことです。現実世界の物体はめったに一定速度で動かず、必ず加速・減速します。このリアルな動きを再現することで、ユーザーは画面上の動きを違和感なく受け入れられます。
+            </p>
+            <p>anime.jsでは <code>easing</code> プロパティで指定します。デフォルトは <code>'easeOutElastic(1, .5)'</code>
+                ですが、UIの用途に応じて適切なイージングを選ぶことがプロ品質のアニメーションへの第一歩です。</p>
+
+            <h2>duration（持続時間）の正しい選び方</h2>
+            <p>durationはミリ秒（ms）で指定します。Googleの「Material Design」ガイドラインでは以下の目安を推奨しています。</p>
+            <ul>
+                <li><strong>100〜200ms</strong>：小さな要素のマイクロインタラクション（ボタンのホバー、チェックボックスのオン/オフ）</li>
+                <li><strong>200〜400ms</strong>：モーダルの出現・消滅、ドロップダウンの展開</li>
+                <li><strong>400〜600ms</strong>：ページ遷移、大きなレイアウト変更</li>
+                <li><strong>600ms以上</strong>：ストーリーテリング的な演出（LP ファーストビューのヒーローアニメーション等）に限定</li>
+            </ul>
+            <p>日常的なUIアクション（クリック、スクロール連動等）で600ms以上のアニメーションをつけると「重い・遅い」と感じられます。速いUIは賢く感じさせます。</p>
+            <pre><code>// ❌ 遅すぎる（日常のUIアクションには不適切）
+anime({ targets: '#btn', scale: [1, 1.05], duration: 1200 });
+
+// ✅ 適切（ボタンのホバーフィードバック）
+anime({ targets: '#btn', scale: [1, 1.05], duration: 150, easing: 'easeOutCubic' });</code></pre>
+
+            <h2>主要イージングの種類と使い分け</h2>
+
+            <h3>easeInOut系（最も汎用）</h3>
+            <p><code>easeInOutQuad</code>、<code>easeInOutCubic</code>、<code>easeInOutSine</code>
+                など。開始と終了が緩やかで中間が速い。ユーザーが移動軌跡を追う場面に最適。カルーセル、プログレスバー、アコーディオンなどのデフォルトとして使える。</p>
+
+            <h3>easeOut系（入場アニメーションの定番）</h3>
+            <p><code>easeOutCubic</code>、<code>easeOutExpo</code>、<code>easeOutQuart</code>
+                など。最初が速く、終点でゆっくり止まる。「素早く反応した」という印象を与えつつ、最後は落ち着く。トースト通知・ドロワーの出現などに◎。</p>
+
+            <h3>easeOutElastic（遊び心・リワード感）</h3>
+            <p>終点でゴムのように伸縮する。SNSの「いいね」ボタン、バッジ獲得エフェクトなどポジティブ感情を強調したいUIに使う。ただし多用するとうるさく感じられる。</p>
+            <pre><code>// パラメータのチューニング
+// easeOutElastic(amplitude, period)
+// amplitude(振幅): 1〜3、period(周期): 0.3〜0.6
+anime({ targets: '#heart', scale: [0, 1], easing: 'easeOutElastic(1, 0.5)', duration: 700 });</code></pre>
+
+            <h3>spring()（物理ベース・最高品質）</h3>
+            <p>4つの物理パラメータ（mass・stiffness・damping・velocity）でバネの挙動を計算。durationが自動決定されるため、どんな距離でも一定の「ネイティブアプリ的な質感」を保てる。トグルスイッチ、スライダーなどに。
+            </p>
+            <pre><code>// spring(mass, stiffness, damping, velocity)
+anime({ targets: '#thumb', left: [0, 24], easing: 'spring(1, 120, 10, 0)' });</code></pre>
+
+            <h3>easeOutBounce（重力感・注意喚起）</h3>
+            <p>ボールが床に弾むような一方向の反発。フォームのバリデーションエラー通知、警告トーストなど「見逃してはいけないお知らせ」に。</p>
+
+            <h2>delay（遅延）とstaggerの設計</h2>
+            <p>複数の要素が同時に動くと「重たい」「賑やかすぎる」という印象を与えます。<code>delay</code>でズレをつけることで視線の流れを美しくコントロールできます。</p>
+            <pre><code>// anime.stagger: 要素ごとに自動計算した遅延を付与
+anime({
+  targets: '.card',
+  opacity: [0, 1],
+  translateY: [20, 0],
+  delay: anime.stagger(80),           // 各要素80ms刻み
+  // delay: anime.stagger(80, { from: 'center' })  // 中心から外側へ波状
+  easing: 'easeOutCubic',
+  duration: 500
+});</code></pre>
+
+            <h2>チートシート：ユースケース別推奨イージング</h2>
+            <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:20px;">
+                <thead>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                        <th style="text-align:left;padding:10px 12px;color:var(--text-dimmer);">ユースケース</th>
+                        <th style="text-align:left;padding:10px 12px;color:var(--text-dimmer);">推奨イージング</th>
+                        <th style="text-align:left;padding:10px 12px;color:var(--text-dimmer);">duration目安</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <td style="padding:10px 12px;color:var(--text);">ボタンホバー</td>
+                        <td style="padding:10px 12px;"><code>easeOutCubic</code></td>
+                        <td style="padding:10px 12px;color:var(--text);">120〜200ms</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <td style="padding:10px 12px;color:var(--text);">モーダル出現</td>
+                        <td style="padding:10px 12px;"><code>easeOutBack</code></td>
+                        <td style="padding:10px 12px;color:var(--text);">300〜400ms</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <td style="padding:10px 12px;color:var(--text);">トースト通知</td>
+                        <td style="padding:10px 12px;"><code>easeOutExpo</code></td>
+                        <td style="padding:10px 12px;color:var(--text);">350〜500ms</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <td style="padding:10px 12px;color:var(--text);">いいねボタン</td>
+                        <td style="padding:10px 12px;"><code>easeOutElastic</code></td>
+                        <td style="padding:10px 12px;color:var(--text);">600〜800ms</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <td style="padding:10px 12px;color:var(--text);">トグルスイッチ</td>
+                        <td style="padding:10px 12px;"><code>spring()</code></td>
+                        <td style="padding:10px 12px;color:var(--text);">自動</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:10px 12px;color:var(--text);">カルーセルスライド</td>
+                        <td style="padding:10px 12px;"><code>easeInOutCubic</code></td>
+                        <td style="padding:10px 12px;color:var(--text);">400〜600ms</td>
+                    </tr>
+                </tbody>
+            </table>
+        </article>
+
+        <!-- 広告枠2（記事末尾） -->
+        <div class="ad-slot" aria-label="広告枠">
+            <span class="ad-slot-label">Advertisement</span>
+        </div>
+
+        <div class="author-box">
+            <div class="author-avatar">R</div>
+            <div class="author-info">
+                <h4>rei</h4>
+                <p>フロントエンドエンジニア。<a href="https://github.com/reikomakoma" target="_blank" rel="noopener">GitHub</a>
+                    でコード公開中。<br>最終更新：2026年3月3日</p>
+            </div>
+        </div>
+
+        <div class="related-section">
+            <h3>関連コンテンツ</h3>
+            <div class="related-links">
+                <a href="reduced-motion.html" class="related-link">モーション配慮設計ガイド</a>
+                <a href="performance.html" class="related-link">パフォーマンス最適化ガイド</a>
+                <a href="../index.html#ease" class="related-link">ホーム：イージングデモ一覧</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-logo">anime.js <span>30 Animations</span></div>
+            <nav class="footer-nav" aria-label="フッターナビゲーション">
+                <div class="footer-nav-group">
+                    <span class="group-label">コンテンツ</span>
+                    <a href="../index.html">ホーム（30デモ）</a>
+                    <a href="../blog/index.html">Blog</a>
+                    <a href="timing-easing.html">Guides</a>
+                    <a href="../changelog.html">更新履歴</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">サイト情報</span>
+                    <a href="../about.html">運営者情報</a>
+                    <a href="../contact.html">お問い合わせ</a>
+                    <a href="../sitemap.html">サイトマップ</a>
+                    <a href="../faq.html">FAQ</a>
+                </div>
+                <div class="footer-nav-group">
+                    <span class="group-label">ポリシー</span>
+                    <a href="../terms.html">利用規約</a>
+                    <a href="../disclaimer.html">免責事項</a>
+                    <a href="../cookie.html">Cookie ポリシー</a>
+                    <a href="../advertising.html">広告配信について</a>
+                    <a href="../privacy.html">プライバシーポリシー</a>
+                </div>
+            </nav>
+            <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
+        </div>
+    </footer>
+</body>
+
+</html>

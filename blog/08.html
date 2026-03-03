@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>やってはいけないWebアニメーション8選 - anime.js Blog</title>
+    <meta name="description" content="実際のWebサイトでよく見かける「悪いアニメーション」パターン8選を分析。なぜ悪いのか・どう直すかを具体例とコードで解説します。" />
+    <meta property="og:title" content="やってはいけないWebアニメーション 8選 ── UXを壊すモーションの共通点" />
+    <meta property="og:description" content="悪いWebアニメーションのパターン8選と改善策。UXを壊す動きの共通点を分析。" />
+    <meta property="og:image" content="https://statuesque-blancmange-6afb8c.netlify.app/og-image.png" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://statuesque-blancmange-6afb8c.netlify.app/blog/08.html" />
+    <link rel="canonical" href="https://statuesque-blancmange-6afb8c.netlify.app/blog/08.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../pages.css" />
+    <script
+        type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"やってはいけないWebアニメーション 8選","author":{"@type":"Person","name":"rei"},"datePublished":"2026-03-03","dateModified":"2026-03-03","publisher":{"@type":"Organization","name":"anime.js 30アニメーション完全解説"},"url":"https://statuesque-blancmange-6afb8c.netlify.app/blog/08.html"}</script>
+</head>
+
+<body data-theme="dark">
+    <div class="page-wrapper">
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+            <a href="../index.html">Home</a><span>›</span>
+            <a href="index.html">Blog</a><span>›</span>
+            <span>やってはいけないWebアニメーション8選</span>
+        </nav>
+        <header class="page-header">
+            <div class="page-badge">ベストプラクティス</div>
+            <h1>やってはいけないWebアニメーション 8選<br>── UXを壊すモーションの共通点</h1>
+            <p class="page-meta">2026年3月3日　／　著者：rei　／　読了時間：約10分</p>
+        </header>
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+        <article class="article-body">
+            <p>「アニメーションをつければUXが上がる」という誤解があります。残念ながら、実際のWebサイトには「良かれと思ってつけたアニメーションがUXを損なっている」ケースが溢れています。この記事では典型的な8つのアンチパターンを、理由と改善策と共に解説します。
+            </p>
+
+            <h2>❌ NG1：ページ全体の入場アニメーションが長すぎる</h2>
+            <p><strong>問題：</strong>ページ読み込み時に2秒以上の「オープニング演出」があるサイト。コンテンツが見えるまでの時間が長く、ユーザーは「フリーズした？」と感じます。</p>
+            <p><strong>改善：</strong>ヒーロー要素の入場アニメーションは最大600ms以内、スタッガーを使う場合も全体が完了するまで1秒以内に設計する。</p>
+            <pre><code>// ❌ 2500msの入場アニメーション
+anime({ targets: '.hero', opacity: [0, 1], duration: 2500 });
+
+// ✅ 500ms以内、スタッガーで差別化
+anime({ targets: '.hero > *', opacity: [0, 1], translateY: [16, 0], delay: anime.stagger(80), duration: 400 });</code></pre>
+
+            <h2>❌ NG2：スクロールを妨げるパラレックス</h2>
+            <p><strong>問題：</strong>スクロールに対してページのスクロール位置とは異なる速度でコンテンツが動くパラレックス効果。モーション酔いの主要原因であり、スクロール性能も低下します。</p>
+            <p><strong>改善：</strong>背景のみへの適用に限定し、移動量は最大20px程度にする。prefers-reduced-motion時は必ず停止。</p>
+
+            <h2>❌ NG3：ループし続ける無関係なアニメーション</h2>
+            <p><strong>問題：</strong>ページ辺縁で意味もなくループする浮遊するアイコン・回転するオーナメントなど。ユーザーの注意を本来のコンテンツから奪います。</p>
+            <p><strong>改善：</strong>ループアニメーションを使うのはローディングスピナー・プログレスバーなど「進行中」を示す場面のみ。</p>
+
+            <h2>❌ NG4：クリックに反応しないボタン（アニメーション中のインタラクション無視）</h2>
+            <p><strong>問題：</strong>アニメーション実行中にbuttonを<code>pointer-events: none</code>や<code>disabled</code>にし続け、ユーザーが複数回クリックしても反応しない。
+            </p>
+            <p><strong>改善：</strong>アニメーション中でも「2回目のクリックはアニメーションを即座に完了させてアクションを実行」するか、アニメーション時間を短くして待機感を解消する。</p>
+            <pre><code>// アニメーション中の多重クリックを適切に処理
+let isAnimating = false;
+btn.addEventListener('click', () => {
+  if (isAnimating) {
+    anime.remove(btn); // アニメーション即座に中断
+    executeAction();
+    return;
+  }
+  isAnimating = true;
+  anime({ targets: btn, scale: [1, 0.95, 1], duration: 200, complete: () => { isAnimating = false; }});
+  executeAction();
+});</code></pre>
+
+            <h2>❌ NG5：duration 1000ms以上の日常操作</h2>
+            <p><strong>問題：</strong>ドロップダウンの展開が1秒かかる、モーダルが2秒かけて出現するなど。操作を「待たされる」感覚はスマートフォンのネイティブアプリ体験と比較され、大きなUX低下になります。
+            </p>
+            <p><strong>改善：</strong>日常的なUIアクション（開く・閉じる・切り替え）は最大400ms。300ms以下が理想。</p>
+
+            <h2>❌ NG6：easeInで始まるUIアニメーション（遅い出だし）</h2>
+            <p><strong>問題：</strong><code>easeIn</code>は最初がゆっくりで徐々に加速するイージング。コンテンツの出現に使うと「重くてもたついている」印象を与えます。</p>
+            <p><strong>改善：</strong>登場（enter）アニメーションは<code>easeOut</code>（速いスタート・ゆっくり着地）が基本。<code>easeIn</code>は退場（leave）アニメーションに使う。
+            </p>
+            <pre><code>// ✅ 登場: easeOut、退場: easeIn
+function enter(el) { anime({ targets: el, opacity: [0, 1], translateY: [16, 0], easing: 'easeOutCubic' }); }
+function leave(el) { anime({ targets: el, opacity: [1, 0], translateY: [0, -8], easing: 'easeInCubic' }); }</code></pre>
+
+            <h2>❌ NG7：reduced-motion 非対応のサイト</h2>
+            <p><strong>問題：</strong>prefers-reduced-motionを全く考慮せず、前庭機能障害を持つユーザーに激しいアニメーションを強制する。これはアクセシビリティ上の重大な問題で、一部の国では法的問題になりうるほどです。
+            </p>
+            <p><strong>改善：</strong>必ずprefers-reduced-motion対応を実装する。<a
+                    href="../guides/reduced-motion.html">モーション配慮設計ガイド</a>を参照。</p>
+
+            <h2>❌ NG8：CLS（累積レイアウトシフト）を引き起こすアニメーション</h2>
+            <p><strong>問題：</strong>アニメーション開始時または完了時に、周囲のコンテンツが突然ズレる現象。Core Web Vitalsの「CLS」スコアが悪化し、SEOにも影響します。</p>
+            <p><strong>改善：</strong>アニメーション前から要素の最終サイズ（width/height）を確保しておく。<code>translate</code>を使って位置をずらし、<code>position: absolute</code>で他の要素への影響を切り離す。
+            </p>
+            <pre><code>// ❌ height変化でCLS発生
+anime({ targets: '#box', height: [0, 200] }); // 周囲がズレる
+
+// ✅ translate + overflow: hiddenでCLS防止
+// 事前にheight: 200pxを確保しておいてtranslateYでスライド表示
+#box { height: 200px; overflow: hidden; }
+anime({ targets: '#box-inner', translateY: ['-100%', '0%'] });</code></pre>
+
+            <h2>まとめ</h2>
+            <p>悪いアニメーションの共通点は「ユーザーのためではなく、デザイナー・開発者の自己満足のために動いている」ことです。アニメーションを追加する前に必ず「これはユーザーの理解・操作を助けるか？」を問い直してください。
+            </p>
+        </article>
+        <div class="ad-slot" aria-label="広告枠"><span class="ad-slot-label">Advertisement</span></div>
+        <div class="author-box">
+            <div class="author-avatar">R</div>
+            <div class="author-info">
+                <h4>rei</h4>
+                <p>フロントエンドエンジニア。最終更新：2026年3月3日</p>
+            </div>
+        </div>
+        <div class="related-section">
+            <h3>関連コンテンツ</h3>
+            <div class="related-links">
+                <a href="../guides/common-mistakes.html" class="related-link">よくあるミスと対策</a>
+                <a href="../guides/reduced-motion.html" class="related-link">モーション配慮設計ガイド</a>
+                <a href="../index.html" class="related-link">ホーム：30デモ一覧</a>
+            </div>
+        </div>
+    </div>
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="footer-logo">anime.js <span>30 Animations</span></div>
+            <nav class="footer-nav">
+                <div class="footer-nav-group"><span class="group-label">コンテンツ</span><a
+                        href="../index.html">ホーム（30デモ）</a><a href="index.html">Blog</a><a
+                        href="../guides/timing-easing.html">Guides</a><a href="../changelog.html">更新履歴</a></div>
+                <div class="footer-nav-group"><span class="group-label">サイト情報</span><a href="../about.html">運営者情報</a><a
+                        href="../contact.html">お問い合わせ</a><a href="../sitemap.html">サイトマップ</a><a
+                        href="../faq.html">FAQ</a></div>
+                <div class="footer-nav-group"><span class="group-label">ポリシー</span><a href="../terms.html">利用規約</a><a
+                        href="../disclaimer.html">免責事項</a><a href="../cookie.html">Cookie ポリシー</a><a
+                        href="../advertising.html">広告配信について</a><a href="../privacy.html">プライバシーポリシー</a></div>
+            </nav>
+            <p class="footer-copy">&copy; 2026 anime.js 30アニメーション完全解説 by rei</p>
+        </div>
+    </footer>
+</body>
+
+</html>
