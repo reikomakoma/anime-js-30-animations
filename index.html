@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>anime.js 30アニメーション完全解説</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="footer.css" />
+</head>
+
+<body data-theme="dark">
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <canvas id="starCanvas" class="star-canvas"></canvas>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <span class="hero-badge">+ anime.js 3.x</span>
+      <h1 class="hero-h">アニメーション<br><span class="hero-hl">30種類完全解説</span></h1>
+      <p class="hero-sub">anime.jsが持つ強力なアニメーション機能を<br>インタラクティブなデモと解説で体験しよう</p>
+    </div>
+    <div class="hero-scroll" onclick="document.querySelector('.hdr').scrollIntoView({behavior:'smooth'})">スクロール</div>
+  </section>
+
+  <!-- SECTION DIVIDER -->
+  <div class="section-divider"></div>
+
+  <div class="app-ui-container">
+    <!-- STICKY APP UI -->
+    <header class="hdr">
+      <div class="hdr-logo">anime.js<span>30 Animations</span></div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search" placeholder="検索… (例: stagger, SVG, トースト)" />
+      </div>
+      <div class="hdr-count" id="count-display">30 / 30</div>
+      <button class="theme-btn" id="themeToggle" onclick="toggleTheme()" title="テーマ切り替え">🌙</button>
+    </header>
+
+    <div class="nav-container-wrapper">
+      <nav class="nav-segmented">
+        <div class="nav-active-bg" id="navActiveBg"></div>
+        <div class="cat-bar">
+          <button class="pill all active" data-cat="all">
+            <span class="p-lab">すべて</span>
+            <span class="p-count">30</span>
+          </button>
+          <button class="pill c-basic" data-cat="basic">
+            <span class="p-lab">基本変形</span>
+            <span class="p-count">8</span>
+          </button>
+          <button class="pill c-ease" data-cat="ease">
+            <span class="p-lab">イージング</span>
+            <span class="p-count">6</span>
+          </button>
+          <button class="pill c-timing" data-cat="timing">
+            <span class="p-lab">タイミング</span>
+            <span class="p-count">5</span>
+          </button>
+          <button class="pill c-svg" data-cat="svg">
+            <span class="p-lab">SVG</span>
+            <span class="p-count">4</span>
+          </button>
+          <button class="pill c-text" data-cat="text">
+            <span class="p-lab">テキスト</span>
+            <span class="p-count">4</span>
+          </button>
+          <button class="pill c-ui" data-cat="ui">
+            <span class="p-lab">UIパーツ</span>
+            <span class="p-count">3</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <main class="main">
+      <div class="grid" id="grid"></div>
+    </main>
+    <footer class="footer">
+      <div class="footer-content">
+        <p>&copy; 2026 anime.js 30アニメーション完全解説</p>
+        <div class="footer-links">
+          <a href="about.html">運営者情報</a>
+          <a href="privacy.html">プライバシーポリシー</a>
+          <a href="contact.html">お問い合わせ</a>
+        </div>
+      </div>
+    </footer>
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="トップへ戻る">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 15l-6-6-6 6" />
+      </svg>
+    </button>
+  </div>
+
+  <script src="demos.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
