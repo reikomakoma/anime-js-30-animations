@@ -88,6 +88,64 @@
       color: #f1f5f9;
     }
 
+    /* グローバルナビ内検索 */
+    .gn-search-wrap {
+      position: relative;
+      flex-shrink: 1;
+      width: 220px;
+    }
+
+    .gn-search-wrap input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 5px 10px 5px 30px;
+      font-size: 0.78rem;
+      color: #f1f5f9;
+      outline: none;
+      transition: border 0.2s;
+      font-family: inherit;
+    }
+
+    .gn-search-wrap input:focus {
+      border-color: rgba(124, 58, 237, 0.5);
+    }
+
+    .gn-search-wrap input::placeholder {
+      color: #475569;
+    }
+
+    .gn-search-icon {
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.75rem;
+      pointer-events: none;
+    }
+
+    .gn-count {
+      font-size: 0.72rem;
+      color: #475569;
+      white-space: nowrap;
+    }
+
+    .gn-theme-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 4px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .gn-theme-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
     .gn-right {
       display: flex;
       align-items: center;
@@ -133,19 +191,19 @@
       }
     }
 
-    /* body padding調整（global-nav 52px + hdr 64px = 116px） */
+    /* body padding = グローバルナビ52pxのみ（hdrは非表示化） */
     body {
-      padding-top: calc(52px + var(--hh));
+      padding-top: 52px;
     }
 
-    /* グローバルナビ分だけデモヘッダーを下にずらす */
+    /* .hdrを非表示（グローバルナビに検索等を統合したため不要） */
     .hdr {
-      top: 52px !important;
+      display: none !important;
     }
 
-    /* スティッキーナビもグローバルナビ分下にずらす */
+    /* スティッキーナビはグローバルナビ直下 */
     .nav-container-wrapper {
-      top: calc(52px + var(--hh)) !important;
+      top: 52px !important;
     }
 
     /* ── ヒーローCTAボタン ── */
@@ -348,6 +406,13 @@
       <a href="changelog.html">更新履歴</a>
     </div>
     <div class="gn-right">
+      <!-- 検索窓（デモページ専用） -->
+      <div class="gn-search-wrap">
+        <span class="gn-search-icon">🔍</span>
+        <input type="text" id="search" placeholder="検索… (例: stagger, SVG)" />
+      </div>
+      <span class="gn-count" id="count-display">30 / 30</span>
+      <button class="gn-theme-btn" id="themeToggle" onclick="toggleTheme()" title="テーマ切り替え">🌙</button>
       <a href="about.html" class="gn-about">運営者情報</a>
       <a href="contact.html" class="gn-contact">お問い合わせ</a>
     </div>
