@@ -1,0 +1,228 @@
+/* ══════════════════════════════════════════
+   global-nav.css — 全ページ共通ナビゲーション用スタイル
+   ══════════════════════════════════════════ */
+
+.global-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 52px;
+    background: rgba(9, 9, 15, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 300;
+    gap: 16px;
+}
+
+.gn-logo {
+    font-size: 0.88rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.gn-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.gn-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: color 0.2s, background 0.2s;
+    white-space: nowrap;
+}
+
+.gn-links a:hover {
+    color: #f1f5f9;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.gn-links a.active {
+    color: #f1f5f9;
+}
+
+/* グローバルナビ内検索 */
+.gn-search-wrap {
+    position: relative;
+    flex-shrink: 1;
+    width: 220px;
+}
+
+.gn-search-wrap input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 5px 10px 5px 30px;
+    font-size: 0.78rem;
+    color: #f1f5f9;
+    outline: none;
+    transition: border 0.2s;
+    font-family: inherit;
+}
+
+.gn-search-wrap input:focus {
+    border-color: rgba(124, 58, 237, 0.5);
+}
+
+.gn-search-wrap input::placeholder {
+    color: #475569;
+}
+
+.gn-search-icon {
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    pointer-events: none;
+}
+
+.gn-count {
+    font-size: 0.72rem;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.gn-theme-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 4px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.gn-theme-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.gn-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.gn-contact,
+.gn-about {
+    font-size: 0.78rem;
+    color: #64748b;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 7px;
+    transition: color 0.2s;
+}
+
+.gn-contact:hover,
+.gn-about:hover {
+    color: #94a3b8;
+}
+
+@media (max-width: 640px) {
+    .gn-links a {
+        padding: 5px 8px;
+        font-size: 0.75rem;
+    }
+
+    .gn-contact,
+    .gn-about {
+        display: none;
+    }
+}
+
+/* ── モバイルドロワー（global-nav.js用） ── */
+.gn-hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    z-index: 401;
+}
+
+.gn-hamburger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #94a3b8;
+    transition: 0.3s;
+}
+
+@media (max-width: 860px) {
+    .gn-hamburger {
+        display: flex;
+    }
+
+    .gn-links {
+        display: none;
+    }
+}
+
+.gn-drawer {
+    position: fixed;
+    top: 0;
+    right: -280px;
+    width: 280px;
+    height: 100%;
+    background: #09090f;
+    z-index: 400;
+    padding: 80px 24px;
+    transition: right 0.3s ease;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.gn-drawer.open {
+    right: 0;
+}
+
+.gn-drawer-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.gn-drawer-inner a {
+    color: #e2e8f0;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.gn-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 399;
+    opacity: 0;
+    display: none;
+    transition: opacity 0.3s;
+}
+
+.gn-overlay.open {
+    display: block;
+    opacity: 1;
+}
