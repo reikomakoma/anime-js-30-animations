@@ -395,28 +395,7 @@
 
 <body data-theme="dark">
 
-  <!-- ① グローバルナビゲーション（全ページ共通） -->
-  <nav class="global-nav" aria-label="グローバルナビゲーション">
-    <a href="index.html" class="gn-logo">anime.js Animations</a>
-    <div class="gn-links">
-      <a href="index.html" class="active">30 Demos</a>
-      <a href="guides/timing-easing.html">Guides</a>
-      <a href="blog/index.html">Blog</a>
-      <a href="faq.html">FAQ</a>
-      <a href="changelog.html">更新履歴</a>
-    </div>
-    <div class="gn-right">
-      <!-- 検索窓（デモページ専用） -->
-      <div class="gn-search-wrap">
-        <span class="gn-search-icon">🔍</span>
-        <input type="text" id="search" placeholder="検索… (例: stagger, SVG)" />
-      </div>
-      <span class="gn-count" id="count-display">30 / 30</span>
-      <button class="gn-theme-btn" id="themeToggle" onclick="toggleTheme()" title="テーマ切り替え">🌙</button>
-      <a href="about.html" class="gn-about">運営者情報</a>
-      <a href="contact.html" class="gn-contact">お問い合わせ</a>
-    </div>
-  </nav>
+  <!-- ① グローバルナビゲーションはglobal-nav.jsにより注入されます -->
 
   <!-- ② HERO -->
   <section class="hero" id="hero">
@@ -463,8 +442,6 @@
     </a>
   </div>
 
-  <!-- SECTION DIVIDER -->
-  <div class="section-divider"></div>
 
   <div class="app-ui-container">
     <!-- ④ STICKY APP HEADER（デモ専用） -->
