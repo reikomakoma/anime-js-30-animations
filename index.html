@@ -191,6 +191,11 @@
       }
     }
 
+    /* グローバルナビ52px基準に--hh変数を上書き */
+    :root {
+      --hh: 52px;
+    }
+
     /* body padding = グローバルナビ52pxのみ（hdrは非表示化） */
     body {
       padding-top: 52px;
@@ -201,7 +206,7 @@
       display: none !important;
     }
 
-    /* スティッキーナビはグローバルナビ直下 */
+    /* スティッキーナビはグローバルナビ直下（--hhで自動計算） */
     .nav-container-wrapper {
       top: 52px !important;
     }
