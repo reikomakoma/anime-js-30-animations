@@ -1,0 +1,25 @@
+{
+  "name": "animejs-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "._app.js",
+  "scripts": {
+    "dev": "serve .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reikomakoma/anime-js-30-animations.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/reikomakoma/anime-js-30-animations/issues"
+  },
+  "homepage": "https://github.com/reikomakoma/anime-js-30-animations#readme",
+  "devDependencies": {
+    "serve": "^14.2.6"
+  }
+}
